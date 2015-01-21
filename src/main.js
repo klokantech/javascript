@@ -6,6 +6,7 @@ goog.require('goog.dom');
 goog.require('kt.Nominatim');
 goog.require('kt.alert');
 goog.require('kt.expose');
+goog.require('kt.prompt');
 
 
 /**
