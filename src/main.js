@@ -1,5 +1,8 @@
 goog.provide('kt.decorate');
 
+goog.require('goog.array');
+goog.require('goog.dom');
+
 goog.require('kt.Nominatim');
 goog.require('kt.alert');
 goog.require('kt.expose');

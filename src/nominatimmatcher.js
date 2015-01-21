@@ -1,5 +1,6 @@
 goog.provide('kt.NominatimMatcher');
 
+goog.require('goog.array');
 goog.require('goog.net.Jsonp');
 
 

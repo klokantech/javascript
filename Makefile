@@ -1,6 +1,8 @@
 PLOVR_VERSION=2.0.0
 PLOVR=plovr.jar
 
+.PHONY: all plovr build serve lint webserver
+
 all: build
 plovr: $(PLOVR)
 build: build/kt.js build/index.html
