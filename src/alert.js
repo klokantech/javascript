@@ -69,3 +69,39 @@ kt.prompt = function(text, callback, opt_title,
 };
 
 kt.expose.symbol('kt.prompt', kt.prompt);
+
+
+/**
+* @param {string} text
+* @param {!function(?boolean)} callback
+* @param {string=} opt_title
+* @param {string=} opt_yes Text for the yes button. Default is 'Yes'.
+* @param {string=} opt_no Text for the No button. Default is 'No'.
+*/
+kt.confirm = function(text, callback, opt_title, opt_yes, opt_no) {
+  var popup = new kt.Popup(opt_title, true, true, function() {
+    callback(null);
+  });
+
+  var yesBtn = goog.dom.createDom(goog.dom.TagName.DIV,
+      'btn-light', opt_yes || 'Yes');
+  var noBtn = goog.dom.createDom(goog.dom.TagName.DIV,
+      'btn-dark', opt_no || 'No');
+  popup.append(text, yesBtn, noBtn);
+
+  goog.events.listen(yesBtn, goog.events.EventType.CLICK, function(e) {
+    popup.setVisible(false);
+    callback(true);
+    e.preventDefault();
+  });
+
+  goog.events.listen(noBtn, goog.events.EventType.CLICK, function(e) {
+    popup.setVisible(false);
+    callback(false);
+    e.preventDefault();
+  });
+
+  popup.setVisible(true);
+};
+
+kt.expose.symbol('kt.confirm', kt.confirm);
