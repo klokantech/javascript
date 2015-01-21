@@ -69,3 +69,5 @@ kt.Popup.prototype.setVisible = function(visible) {
 kt.Popup.prototype.append = function(var_args) {
   goog.dom.append(this.content_, arguments);
 };
+
+kt.expose.symbol('kt.Popup', kt.Popup);
