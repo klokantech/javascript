@@ -125,16 +125,21 @@ kt.Nominatim.prototype.enable = function(enable) {
 kt.Nominatim.prototype.registerCallback = function(callback) {
   goog.events.listen(this, goog.ui.ac.AutoComplete.EventType.UPDATE,
       function(e) {
-        var bnds = e.row['bounds'] || e.row['viewport'];
-        callback(bnds);
+        if (e.row) {
+          var bnds = e.row['bounds'] || e.row['viewport'];
+          if (bnds) callback(bnds);
+        }
       }, false, this);
 
   var geocoder_search = goog.bind(function(e) {
     e.preventDefault();
     if (this.enabled_) {
       this.search(this.input_.value, 1, goog.bind(function(tok, results) {
-        var bnds = results[0]['bounds'] || results[0]['viewport'];
-        callback(bnds);
+        var result = results[0];
+        if (result) {
+          var bnds = result['bounds'] || result['viewport'];
+          callback(bnds);
+        }
       }, this));
     }
   }, this);
