@@ -120,6 +120,35 @@ kt.Nominatim.prototype.enable = function(enable) {
 
 
 /**
+ * @param {function(!Array.<number>)} callback
+ */
+kt.Nominatim.prototype.registerCallback = function(callback) {
+  goog.events.listen(this, goog.ui.ac.AutoComplete.EventType.UPDATE,
+      function(e) {
+        var bnds = e.row['bounds'] || e.row['viewport'];
+        callback(bnds);
+      }, false, this);
+
+  var geocoder_search = goog.bind(function(e) {
+    e.preventDefault();
+    if (this.enabled_) {
+      this.search(this.input_.value, 1, goog.bind(function(tok, results) {
+        var bnds = results[0]['bounds'] || results[0]['viewport'];
+        callback(bnds);
+      }, this));
+    }
+  }, this);
+  var form = goog.dom.getAncestorByTagNameAndClass(this.input_,
+                                                   goog.dom.TagName.FORM);
+  if (form) {
+    goog.events.listen(form, goog.events.EventType.SUBMIT, geocoder_search);
+  }
+  goog.events.listen(this.input_,
+                     ['webkitspeechchange', 'speechchange'], geocoder_search);
+};
+
+
+/**
 * Calls matchHandler on a set of matching rows retrieved from server.
 * @param {string} token The text that should be matched; passed to the server
 *     as the 'token' query param.
