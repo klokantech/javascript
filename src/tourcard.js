@@ -1,0 +1,288 @@
+/**
+ * Copyright (C) 2015 Klokan Technologies GmbH (info@klokantech.com)
+ *
+ * The JavaScript code in this page is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU
+ * General Public License (GNU GPL) as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option)
+ * any later version.  The code is distributed WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU GPL for more details.
+ *
+ * USE OF THIS CODE OR ANY PART OF IT IN A NONFREE SOFTWARE IS NOT ALLOWED
+ * WITHOUT PRIOR WRITTEN PERMISSION FROM KLOKAN TECHNOLOGIES GMBH.
+ *
+ * As additional permission under GNU GPL version 3 section 7, you
+ * may distribute non-source (e.g., minimized or compacted) forms of
+ * that code without the copy of the GNU GPL normally required by
+ * section 4, provided you include this license notice and a URL
+ * through which recipients can access the Corresponding Source.
+ */
+
+/**
+ * @author petr.sloup@klokantech.com (Petr Sloup)
+ */
+
+goog.provide('kt.TourCard');
+goog.provide('kt.TourCard.Direction');
+goog.provide('kt.TourCard.EventType');
+
+goog.require('goog.dom');
+goog.require('goog.dom.classlist');
+goog.require('goog.events');
+goog.require('goog.events.EventTarget');
+
+
+
+/**
+ * @param {string|Element} title
+ * @param {string|Element} content
+ * @param {Element|goog.math.Coordinate} anchor
+ * @param {!kt.TourCard.Direction} direction
+ * @param {!goog.math.Box=} opt_highlight
+ * @param {!kt.TourCard.Direction=} opt_anchorDirX
+ *                                Defaults to LEFT (or `direction` if == RIGHT)
+ * @param {!kt.TourCard.Direction=} opt_anchorDirY
+ *                                Defaults to TOP (or `direction` if == BOTTOM)
+ * @param {number=} opt_anchorPadding Distance from the anchor point in pixels.
+ * @constructor
+ * @extends {goog.events.EventTarget}
+ */
+kt.TourCard = function(title, content, anchor, direction, opt_highlight,
+                       opt_anchorDirX, opt_anchorDirY, opt_anchorPadding) {
+  goog.base(this);
+
+  /**
+   * @type {string}
+   * @private
+   */
+  this.title_ = goog.isString(title) ? title : title.innerHTML;
+
+  /**
+  * @type {string}
+  * @private
+  */
+  this.content_ = goog.isString(content) ? content : content.innerHTML;
+
+  /**
+  * @type {Element|goog.math.Coordinate}
+  * @private
+  */
+  this.anchor_ = anchor;
+
+  /**
+   * For the arrow.
+   * @type {!kt.TourCard.Direction}
+   * @private
+   */
+  this.direction_ = direction;
+
+  /**
+   * @type {!kt.TourCard.Direction}
+   * @private
+   */
+  this.anchorDirX_ = opt_anchorDirX ||
+      (direction == kt.TourCard.Direction.RIGHT ?
+      kt.TourCard.Direction.RIGHT : kt.TourCard.Direction.LEFT);
+
+  /**
+   * @type {!kt.TourCard.Direction}
+   * @private
+   */
+  this.anchorDirY_ = opt_anchorDirY ||
+      (direction == kt.TourCard.Direction.BOTTOM ?
+      kt.TourCard.Direction.BOTTOM : kt.TourCard.Direction.TOP);
+
+  /**
+   * @type {number}
+   * @private
+   */
+  this.anchorPadding_ = opt_anchorPadding ||
+                        kt.TourCard.DEFAULT_ANCHOR_PADDING;
+
+  /**
+   * @type {?goog.math.Box}
+   * @private
+   */
+  this.highlight_ = opt_highlight || null;
+
+  /**
+   * @type {?Element}
+   * @private
+   */
+  this.element_ = null;
+
+  /**
+   * @type {?Element}
+   * @private
+   */
+  this.container_ = null;
+};
+goog.inherits(kt.TourCard, goog.events.EventTarget);
+
+
+/**
+ * @define {number} Default distance from the anchor point in pixels.
+ */
+kt.TourCard.DEFAULT_ANCHOR_PADDING = 15;
+
+
+/**
+ * @param {number=} opt_skipperCount Number of bullets to display.
+ * @param {number=} opt_skipperIndex
+ * @param {boolean=} opt_last
+ */
+kt.TourCard.prototype.prepare = function(opt_skipperCount, opt_skipperIndex,
+                                         opt_last) {
+
+  this.element_ = goog.dom.createDom(goog.dom.TagName.DIV, 'tour-card');
+  goog.dom.classlist.add(this.element_, 'direction-' + this.direction_);
+
+  var titleEl = goog.dom.createDom(goog.dom.TagName.H3, 'tour-card-title');
+  titleEl.innerHTML = this.title_;
+
+  var contentEl = goog.dom.createDom(goog.dom.TagName.P, 'tour-card-content');
+  contentEl.innerHTML = this.content_;
+
+  var closeBtn = goog.dom.createDom(goog.dom.TagName.A, {
+    'href': '#',
+    'class': 'tour-card-close'
+  }, 'x');
+  goog.events.listen(closeBtn, goog.events.EventType.CLICK, function(e) {
+    this.dispatchEvent(kt.TourCard.EventType.CLOSE);
+    e.preventDefault();
+  }, false, this);
+
+  var nextBtn = undefined;
+  if (opt_last !== true) {
+    nextBtn = goog.dom.createDom(goog.dom.TagName.A, {
+      'href': '#',
+      'class': 'tour-card-next'
+    }, '>');
+    goog.events.listen(nextBtn, goog.events.EventType.CLICK, function(e) {
+      this.dispatchEvent(kt.TourCard.EventType.NEXT);
+      e.preventDefault();
+    }, false, this);
+  }
+
+  var skipperBox = goog.dom.createDom(goog.dom.TagName.DIV,
+                                      'tour-card-skippers');
+
+  var skippers = opt_skipperCount || 0;
+  for (var i = 0; i < skippers; i++) {
+    (function(index, that) {
+      var skipper = goog.dom.createDom(goog.dom.TagName.A, {
+        'href': '#',
+        'class': 'tour-card-skipper'
+      });
+      if (index === opt_skipperIndex) {
+        goog.dom.classlist.add(skipper, 'active');
+      }
+      goog.events.listen(skipper, goog.events.EventType.CLICK, function(e) {
+        that.dispatchEvent({
+          type: kt.TourCard.EventType.GOTO,
+          value: index
+        });
+        e.preventDefault();
+      }, false, that);
+      goog.dom.appendChild(skipperBox, skipper);
+    })(i, this);
+  }
+  goog.dom.append(this.element_, titleEl, contentEl,
+      closeBtn, skipperBox, nextBtn);
+};
+
+
+/**
+ */
+kt.TourCard.prototype.updatePosition = function() {
+  if (!this.container_) return;
+
+  // reset position
+  var style = this.element_.style;
+  style.top = 'auto';
+  style.right = 'auto';
+  style.bottom = 'auto';
+  style.left = 'auto';
+
+  if (this.direction_ == kt.TourCard.Direction.NONE) {
+    // TODO: center
+  } else if (this.anchor_ instanceof goog.math.Coordinate) {
+    var posX = this.anchor_.x +
+        (this.anchorDirX_ == this.direction_ ? this.anchorPadding_ : 0);
+    var posY = this.anchor_.y +
+        (this.anchorDirY_ == this.direction_ ? this.anchorPadding_ : 0);
+
+    style[this.anchorDirX_] = posX + 'px';
+    style[this.anchorDirY_] = posY + 'px';
+  } else {
+    var rect = this.anchor_.getBoundingClientRect();
+    var size = goog.style.getBorderBoxSize(this.anchor_);
+    var containerRect = this.container_.getBoundingClientRect();
+    var containerSize = goog.style.getSize(this.container_);
+
+    // positions of the anchor element.
+    // "Fixed" relative to the container position and size so that
+    //   e.g. "right" is position relative to the right edge of the container.
+    var poses = {
+      'top': (rect.top - containerRect.top),
+      'left': (rect.left - containerRect.left),
+      'bottom': containerSize.height - (rect.bottom - containerRect.top),
+      'right': containerSize.width - (rect.right - containerRect.left)
+    };
+
+    var posX = poses[this.anchorDirX_] +
+        (this.anchorDirX_ == this.direction_ ?
+            size.width + this.anchorPadding_ : 0);
+    var posY = poses[this.anchorDirY_] +
+        (this.anchorDirY_ == this.direction_ ?
+            size.height + this.anchorPadding_ : 0);
+
+    style[this.anchorDirX_] = posX + 'px';
+    style[this.anchorDirY_] = posY + 'px';
+  }
+};
+
+
+/**
+ * @param {?Element} container
+ */
+kt.TourCard.prototype.show = function(container) {
+  this.container_ = container;
+
+  goog.dom.removeNode(this.element_);
+  if (this.container_) {
+    goog.dom.appendChild(this.container_, this.element_);
+    this.updatePosition();
+  }
+};
+
+
+/**
+ */
+kt.TourCard.prototype.destroy = function() {
+  this.show(null);
+  this.element_ = null;
+};
+
+
+/**
+ * @enum {string}
+ */
+kt.TourCard.Direction = {
+  NONE: 'none',
+  LEFT: 'left',
+  RIGHT: 'right',
+  TOP: 'top',
+  BOTTOM: 'bottom'
+};
+
+
+/**
+ * @enum {string}
+ */
+kt.TourCard.EventType = {
+  GOTO: 'goto',
+  NEXT: 'next',
+  CLOSE: 'close'
+};
