@@ -35,6 +35,7 @@ goog.require('goog.events.EventTarget');
 
 
 /**
+ * If direction is NONE or anchor is null, center in the container.
  * @param {string|Element} title
  * @param {string|Element} content
  * @param {Element|goog.math.Coordinate} anchor
@@ -128,6 +129,18 @@ kt.TourCard.DEFAULT_ANCHOR_PADDING = 15;
 
 
 /**
+ * @define {number} Fade animation time in ms.
+ */
+kt.TourCard.FADE_ANIM_TIME = 1000;
+
+
+/**
+ * @define {number} Expand the highlight area by this to see it better.
+ */
+kt.TourCard.HIGHLIGHT_MARGIN = 5;
+
+
+/**
  * @param {number=} opt_skipperCount Number of bullets to display.
  * @param {number=} opt_skipperIndex
  * @param {boolean=} opt_last
@@ -137,6 +150,8 @@ kt.TourCard.prototype.prepare = function(opt_skipperCount, opt_skipperIndex,
 
   this.element_ = goog.dom.createDom(goog.dom.TagName.DIV, 'tour-card');
   goog.dom.classlist.add(this.element_, 'direction-' + this.direction_);
+  goog.dom.classlist.add(this.element_, 'anchor-' + this.anchorDirX_);
+  goog.dom.classlist.add(this.element_, 'anchor-' + this.anchorDirY_);
 
   var titleEl = goog.dom.createDom(goog.dom.TagName.H3, 'tour-card-title');
   titleEl.innerHTML = this.title_;
@@ -205,8 +220,10 @@ kt.TourCard.prototype.updatePosition = function() {
   style.bottom = 'auto';
   style.left = 'auto';
 
-  if (this.direction_ == kt.TourCard.Direction.NONE) {
-    // TODO: center
+  if (this.direction_ == kt.TourCard.Direction.NONE ||
+      goog.isNull(this.anchor_)) {
+    style.top = '50%';
+    style.left = '50%';
   } else if (this.anchor_ instanceof goog.math.Coordinate) {
     var posX = this.anchor_.x +
         (this.anchorDirX_ == this.direction_ ? this.anchorPadding_ : 0);
@@ -245,15 +262,54 @@ kt.TourCard.prototype.updatePosition = function() {
 
 
 /**
+ * @return {?goog.math.Box}
+ */
+kt.TourCard.prototype.getHighlight = function() {
+  if (this.highlight_) return this.highlight_;
+  if (!this.anchor_) return null;
+
+  if (goog.dom.isElement(this.anchor_)) {
+    var rect = this.anchor_.getBoundingClientRect();
+    var containerRect = this.container_.getBoundingClientRect();
+
+    var margin = kt.TourCard.HIGHLIGHT_MARGIN;
+    var box = new goog.math.Box(
+        Math.max(rect.top - margin - containerRect.top, 0),
+        rect.right + margin - containerRect.left,
+        rect.bottom + margin - containerRect.top,
+        Math.max(rect.left - margin - containerRect.left, 0)
+        );
+    window['console']['log'](box);
+    return box;
+  } else {
+    var pos = goog.style.getRelativePosition(this.element_, this.container_);
+    return new goog.math.Box(pos.y, pos.x, pos.y, pos.x);
+  }
+};
+
+
+/**
  * @param {?Element} container
  */
 kt.TourCard.prototype.show = function(container) {
+  this.element_.style.opacity = 0;
+  if (this.container_ && !container) {
+    // fade out anim
+    goog.Timer.callOnce(function() {
+      if (this.element_) goog.dom.removeNode(this.element_);
+    }, kt.TourCard.FADE_ANIM_TIME, this);
+  }
+
   this.container_ = container;
 
-  goog.dom.removeNode(this.element_);
   if (this.container_) {
     goog.dom.appendChild(this.container_, this.element_);
     this.updatePosition();
+
+    // fade in anim
+    goog.Timer.callOnce(function() {
+      if (this.element_) this.element_.style.opacity = 1;
+    }, 0, this);
   }
 };
 

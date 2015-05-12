@@ -36,9 +36,10 @@ goog.require('kt.TourCard.EventType');
 
 /**
  * @param {!Element=} opt_container
+ * @param {boolean=} opt_highlight Highlight the anchors or highlight boxes.
  * @constructor
  */
-kt.Tour = function(opt_container) {
+kt.Tour = function(opt_container, opt_highlight) {
   /**
    * @type {!Array.<!kt.TourCard>}
    * @private
@@ -55,13 +56,38 @@ kt.Tour = function(opt_container) {
    * @type {Element}
    * @private
    */
-  this.container_ = opt_container || document.documentElement;
+  this.container_ = opt_container || document.body;
 
   /**
-   * @type {!Element}
+   * @type {boolean}
    * @private
    */
-  this.veil_ = goog.dom.createDom(goog.dom.TagName.DIV, 'tour-veil');
+  this.highlight_ = goog.isDef(opt_highlight) ? opt_highlight : true;
+
+  /**
+   * @type {!Array.<!Element>}
+   * @private
+   */
+  this.veils_ = [];
+
+  var addVeil = goog.bind(function(opt_class) {
+    var veil = goog.dom.createDom(goog.dom.TagName.DIV, 'tour-veil');
+    goog.events.listen(veil, goog.events.EventType.CLICK, function(e) {
+      this.end();
+      e.preventDefault();
+    }, false, this);
+    this.veils_.push(veil);
+    if (opt_class) goog.dom.classlist.add(veil, opt_class);
+  }, this);
+
+  addVeil('tour-veil-under');
+  if (this.highlight_) {
+    // we need 4 more for highlighting
+    addVeil();
+    addVeil();
+    addVeil();
+    addVeil();
+  }
 };
 
 
@@ -120,7 +146,9 @@ kt.Tour.prototype.destroy_ = function() {
  */
 kt.Tour.prototype.start = function() {
   this.prepare_();
-  goog.dom.appendChild(this.container_, this.veil_);
+  goog.array.forEach(this.veils_, function(el, i, arr) {
+    goog.dom.appendChild(this.container_, el);
+  }, this);
   this.showCard(0);
 };
 
@@ -129,7 +157,7 @@ kt.Tour.prototype.start = function() {
  */
 kt.Tour.prototype.end = function() {
   this.showCard(null);
-  goog.dom.removeNode(this.veil_);
+  goog.array.forEach(this.veils_, goog.dom.removeNode);
   this.destroy_();
 };
 
@@ -144,12 +172,39 @@ kt.Tour.prototype.showCard = function(index) {
       this.activeCard_ = null;
       card.show(null);
     }
+    this.updateHighlight(null);
   }
   if (!goog.isNull(index)) {
     var card = this.cards_[index];
     if (goog.isDefAndNotNull(card)) {
       this.activeCard_ = index;
       card.show(this.container_);
+      if (this.highlight_) this.updateHighlight(card.getHighlight());
     }
   }
+};
+
+
+/**
+ * @param {?goog.math.Box} box Null to hide.
+ */
+kt.Tour.prototype.updateHighlight = function(box) {
+  if (!this.highlight_) return;
+  var unit = 'px';
+  if (goog.isNull(box)) {
+    box = new goog.math.Box(50, 50, 50, 50);
+    unit = '%';
+  }
+  // top
+  this.veils_[1].style.height = box.top + unit;
+  // right
+  this.veils_[2].style.left = box.right + unit;
+  this.veils_[2].style.top = box.top + unit;
+  this.veils_[2].style.height = (box.bottom - box.top) + unit;
+  // bottom
+  this.veils_[3].style.top = box.bottom + unit;
+  //left
+  this.veils_[4].style.width = box.left + unit;
+  this.veils_[4].style.top = box.top + unit;
+  this.veils_[4].style.height = (box.bottom - box.top) + unit;
 };
