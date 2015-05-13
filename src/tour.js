@@ -102,22 +102,22 @@ kt.Tour = function(opt_container, opt_highlight) {
 
     if (e.keyCode == goog.events.KeyCodes.ESC) {
       this.end();
-      e.preventDefault();
     } else if (e.keyCode == goog.events.KeyCodes.LEFT ||
                e.keyCode == goog.events.KeyCodes.UP) {
       if (this.activeCard_ > 0) {
         this.showCard(this.activeCard_ - 1);
       }
-      e.preventDefault();
     } else if (e.keyCode == goog.events.KeyCodes.RIGHT ||
-               e.keyCode == goog.events.KeyCodes.DOWN) {
+               e.keyCode == goog.events.KeyCodes.DOWN ||
+               e.keyCode == goog.events.KeyCodes.ENTER ||
+               e.keyCode == goog.events.KeyCodes.SPACE) {
       if (this.activeCard_ == this.cards_.length - 1) {
         this.end();
       } else {
         this.showCard(this.activeCard_ + 1);
       }
-      e.preventDefault();
     }
+    e.preventDefault();
   }, false, this);
 
   /**
@@ -194,6 +194,8 @@ kt.Tour.prototype.destroy_ = function() {
 kt.Tour.prototype.start = function() {
   this.prepare_();
   goog.dom.appendChild(this.container_, this.veils_[0]);
+  var activeElement = goog.dom.getActiveElement(goog.dom.getDocument());
+  if (activeElement) activeElement.blur(); // remove focus from any element
   this.showCard(0);
 };
 
