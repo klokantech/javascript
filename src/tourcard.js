@@ -118,6 +118,12 @@ kt.TourCard = function(title, content, anchor, direction, opt_highlight,
    * @private
    */
   this.container_ = null;
+
+  /**
+   * @type {?number}
+   * @private
+   */
+  this.fadeAnimTimer_ = null;
 };
 goog.inherits(kt.TourCard, goog.events.EventTarget);
 
@@ -291,10 +297,12 @@ kt.TourCard.prototype.getHighlight = function() {
  * @param {?Element} container
  */
 kt.TourCard.prototype.show = function(container) {
+  goog.Timer.clear(this.fadeAnimTimer_); // cancel old animation if any
+
   this.element_.style.opacity = 0;
   if (this.container_ && !container) {
     // fade out anim
-    goog.Timer.callOnce(function() {
+    this.fadeAnimTimer_ = goog.Timer.callOnce(function() {
       if (this.element_) goog.dom.removeNode(this.element_);
     }, kt.TourCard.FADE_ANIM_TIME, this);
   }
@@ -306,7 +314,7 @@ kt.TourCard.prototype.show = function(container) {
     this.updatePosition();
 
     // fade in anim
-    goog.Timer.callOnce(function() {
+    this.fadeAnimTimer_ = goog.Timer.callOnce(function() {
       if (this.element_) this.element_.style.opacity = 1;
     }, 0, this);
   }
