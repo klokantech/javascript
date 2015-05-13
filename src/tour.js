@@ -28,6 +28,7 @@ goog.provide('kt.Tour');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.events');
+goog.require('goog.events.KeyHandler');
 goog.require('goog.style');
 
 goog.require('kt.TourCard.EventType');
@@ -88,6 +89,44 @@ kt.Tour = function(opt_container, opt_highlight) {
     addVeil();
     addVeil();
   }
+
+  /**
+   * @type {!goog.events.KeyHandler}
+   * @private
+   */
+  this.keyHandler_ = new goog.events.KeyHandler();
+  this.keyHandler_.listen(goog.events.KeyHandler.EventType.KEY, function(e) {
+    if (goog.isNull(this.activeCard_)) return;
+
+    if (e.keyCode == goog.events.KeyCodes.ESC) {
+      this.end();
+      e.preventDefault();
+    } else if (e.keyCode == goog.events.KeyCodes.LEFT ||
+               e.keyCode == goog.events.KeyCodes.UP) {
+      if (this.activeCard_ > 0) {
+        this.showCard(this.activeCard_ - 1);
+      }
+      e.preventDefault();
+    } else if (e.keyCode == goog.events.KeyCodes.RIGHT ||
+               e.keyCode == goog.events.KeyCodes.DOWN) {
+      if (this.activeCard_ == this.cards_.length - 1) {
+        this.end();
+      } else {
+        this.showCard(this.activeCard_ + 1);
+      }
+      e.preventDefault();
+    }
+  }, false, this);
+
+  /**
+   * @type {goog.dom.ViewportSizeMonitor}
+   * @private
+   */
+  this.vsm_ = goog.dom.ViewportSizeMonitor.getInstanceForWindow();
+
+  this.vsm_.listen(goog.events.EventType.RESIZE, function(e) {
+    this.handleResize();
+  }, false, this);
 };
 
 
@@ -101,6 +140,20 @@ kt.Tour.prototype.addCard = function(card) {
 
 
 /**
+ * Shortcut for adding multiple cards.
+ * @param {!kt.TourCard|!Array.<!kt.TourCard>} first
+ * @param {...!kt.TourCard} var_args
+ */
+kt.Tour.prototype.addCards = function(first, var_args) {
+  if (goog.isArray(first)) {
+    this.addCards.apply(this, first);
+  } else {
+    goog.array.forEach(arguments, this.addCard, this);
+  }
+};
+
+
+/**
  * @private
  */
 kt.Tour.prototype.prepare_ = function() {
@@ -108,16 +161,17 @@ kt.Tour.prototype.prepare_ = function() {
   goog.array.forEach(this.cards_, function(el, i, arr) {
     el.prepare(count, i, i == count - 1);
 
-    goog.events.listen(el, kt.TourCard.EventType.CLOSE, function(e) {
+    el.listen(kt.TourCard.EventType.CLOSE, function(e) {
       this.end();
     }, false, this);
-    goog.events.listen(el, kt.TourCard.EventType.GOTO, function(e) {
+    el.listen(kt.TourCard.EventType.GOTO, function(e) {
       this.showCard(e.value);
     }, false, this);
-    goog.events.listen(el, kt.TourCard.EventType.NEXT, function(e) {
+    el.listen(kt.TourCard.EventType.NEXT, function(e) {
       this.showCard(i + 1);
     }, false, this);
   }, this);
+  this.keyHandler_.attach(this.container_);
 };
 
 
@@ -125,19 +179,10 @@ kt.Tour.prototype.prepare_ = function() {
  * @private
  */
 kt.Tour.prototype.destroy_ = function() {
+  this.keyHandler_.detach();
   goog.array.forEach(this.cards_, function(el, i, arr) {
     el.removeAllListeners();
     el.destroy();
-
-    goog.events.listen(el, kt.TourCard.EventType.CLOSE, function(e) {
-      this.end();
-    }, false, this);
-    goog.events.listen(el, kt.TourCard.EventType.GOTO, function(e) {
-      this.showCard(e.value);
-    }, false, this);
-    goog.events.listen(el, kt.TourCard.EventType.NEXT, function(e) {
-      this.showCard(i + 1);
-    }, false, this);
   }, this);
 };
 
@@ -207,4 +252,17 @@ kt.Tour.prototype.updateHighlight = function(box) {
   this.veils_[4].style.width = box.left + unit;
   this.veils_[4].style.top = box.top + unit;
   this.veils_[4].style.height = (box.bottom - box.top) + unit;
+};
+
+
+/**
+ */
+kt.Tour.prototype.handleResize = function() {
+  if (!goog.isNull(this.activeCard_)) {
+    var card = this.cards_[this.activeCard_];
+    if (goog.isDefAndNotNull(card)) {
+      card.updatePosition();
+      this.updateHighlight(card.getHighlight());
+    }
+  }
 };

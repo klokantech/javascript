@@ -279,7 +279,6 @@ kt.TourCard.prototype.getHighlight = function() {
         rect.bottom + margin - containerRect.top,
         Math.max(rect.left - margin - containerRect.left, 0)
         );
-    window['console']['log'](box);
     return box;
   } else {
     var pos = goog.style.getRelativePosition(this.element_, this.container_);
