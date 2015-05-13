@@ -71,23 +71,25 @@ kt.Tour = function(opt_container, opt_highlight) {
    */
   this.veils_ = [];
 
-  var addVeil = goog.bind(function(opt_class) {
+  var addVeil = goog.bind(function(opt_parent, opt_class) {
     var veil = goog.dom.createDom(goog.dom.TagName.DIV, 'tour-veil');
     goog.events.listen(veil, goog.events.EventType.CLICK, function(e) {
       this.end();
       e.preventDefault();
     }, false, this);
     this.veils_.push(veil);
+    if (opt_parent) goog.dom.appendChild(opt_parent, veil);
     if (opt_class) goog.dom.classlist.add(veil, opt_class);
+    return veil;
   }, this);
 
-  addVeil('tour-veil-under');
+  var under = addVeil(undefined, 'tour-veil-under');
   if (this.highlight_) {
     // we need 4 more for highlighting
-    addVeil();
-    addVeil();
-    addVeil();
-    addVeil();
+    addVeil(under);
+    addVeil(under);
+    addVeil(under);
+    addVeil(under);
   }
 
   /**
@@ -191,9 +193,7 @@ kt.Tour.prototype.destroy_ = function() {
  */
 kt.Tour.prototype.start = function() {
   this.prepare_();
-  goog.array.forEach(this.veils_, function(el, i, arr) {
-    goog.dom.appendChild(this.container_, el);
-  }, this);
+  goog.dom.appendChild(this.container_, this.veils_[0]);
   this.showCard(0);
 };
 
@@ -202,7 +202,7 @@ kt.Tour.prototype.start = function() {
  */
 kt.Tour.prototype.end = function() {
   this.showCard(null);
-  goog.array.forEach(this.veils_, goog.dom.removeNode);
+  goog.dom.removeNode(this.veils_[0]);
   this.destroy_();
 };
 
