@@ -299,6 +299,8 @@ kt.TourCard.prototype.getHighlight = function() {
 kt.TourCard.prototype.show = function(container) {
   goog.Timer.clear(this.fadeAnimTimer_); // cancel old animation if any
 
+  if (!this.element_) return;
+
   this.element_.style.opacity = 0;
   if (this.container_ && !container) {
     // fade out anim
