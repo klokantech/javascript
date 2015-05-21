@@ -302,10 +302,13 @@ kt.TourCard.prototype.show = function(container) {
   if (!this.element_) return;
 
   this.element_.style.opacity = 0;
-  if (this.container_ && !container) {
+  if (this.element_.parentNode && !container) {
     // fade out anim
+
+    // remember the instance, this.element_ may not be valid at the end of anim
+    var el = this.element_;
     this.fadeAnimTimer_ = goog.Timer.callOnce(function() {
-      if (this.element_) goog.dom.removeNode(this.element_);
+      goog.dom.removeNode(el);
     }, kt.TourCard.FADE_ANIM_TIME, this);
   }
 
