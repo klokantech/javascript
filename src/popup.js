@@ -45,6 +45,12 @@ kt.Popup = function(opt_title, opt_modal, opt_closeable, opt_closeCallback) {
    */
   this.content_ = goog.dom.createDom(goog.dom.TagName.DIV, 'popup-content');
 
+  /**
+   * @type {?Element}
+   * @private
+   */
+  this.actions_ = null;
+
   var closeBtn = opt_closeable ?
       goog.dom.createDom(goog.dom.TagName.A, 'popup-close', 'X') : null;
 
@@ -52,11 +58,17 @@ kt.Popup = function(opt_title, opt_modal, opt_closeable, opt_closeCallback) {
    * @type {!Element}
    * @private
    */
-  this.element_ = goog.dom.createDom(goog.dom.TagName.DIV, 'popup',
-      opt_title ?
-      goog.dom.createDom(goog.dom.TagName.DIV, 'popup-title',
-                         opt_title, closeBtn) : closeBtn,
-      this.content_);
+  this.element_ = goog.dom.createDom(goog.dom.TagName.DIV, 'popup');
+
+  if (opt_title) {
+    goog.dom.appendChild(this.element_,
+        goog.dom.createDom(goog.dom.TagName.DIV, 'popup-title', opt_title));
+  }
+
+  if (closeBtn) {
+    goog.dom.appendChild(this.element_, closeBtn);
+  }
+  goog.dom.appendChild(this.element_, this.content_);
 
   /**
    * @type {!Element}
@@ -94,5 +106,18 @@ kt.Popup.prototype.setVisible = function(visible) {
 kt.Popup.prototype.append = function(var_args) {
   goog.dom.append(this.content_, arguments);
 };
+
+
+/**
+ * @param {...goog.dom.Appendable} var_args The things to append to the actions.
+ */
+kt.Popup.prototype.appendActions = function(var_args) {
+  if (!this.actions_) {
+    this.actions_ = goog.dom.createDom(goog.dom.TagName.DIV, 'popup-actions');
+    goog.dom.appendChild(this.element_, this.actions_);
+  }
+  goog.dom.append(this.actions_, arguments);
+};
+
 
 kt.expose.symbol('kt.Popup', kt.Popup);

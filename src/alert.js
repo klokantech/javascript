@@ -42,8 +42,9 @@ goog.require('kt.expose');
 kt.alert = function(text, opt_title, opt_ok) {
   var popup = new kt.Popup(opt_title, true);
 
+  popup.append(String(text));
   var okBtn = goog.dom.createDom(goog.dom.TagName.DIV, 'btn', opt_ok || 'OK');
-  popup.append(String(text), okBtn);
+  popup.appendActions(okBtn);
 
   goog.events.listen(okBtn, goog.events.EventType.CLICK, function(e) {
     popup.setVisible(false);
@@ -57,7 +58,7 @@ kt.expose.symbol('kt.alert', kt.alert);
 
 
 /**
- * @param {string} text
+ * @param {*} text
  * @param {!function(?string)} callback
  * @param {string=} opt_title
  * @param {string=} opt_ok Text for the OK button. Default is 'OK'.
@@ -72,11 +73,13 @@ kt.prompt = function(text, callback, opt_title,
     type: 'text',
     value: opt_default || ''
   });
+  popup.append(String(text), valueInput);
+
   var okBtn = goog.dom.createDom(goog.dom.TagName.DIV,
                                  'btn-light', opt_ok || 'OK');
   var cancelBtn = goog.dom.createDom(goog.dom.TagName.DIV,
                                      'btn-dark', opt_cancel || 'Cancel');
-  popup.append(text, valueInput, cancelBtn, okBtn);
+  popup.appendActions(cancelBtn, okBtn);
 
   goog.events.listen(okBtn, goog.events.EventType.CLICK, function(e) {
     popup.setVisible(false);
@@ -97,7 +100,7 @@ kt.expose.symbol('kt.prompt', kt.prompt);
 
 
 /**
-* @param {string} text
+* @param {*} text
 * @param {!function(?boolean)} callback
 * @param {string=} opt_title
 * @param {string=} opt_yes Text for the yes button. Default is 'Yes'.
@@ -108,11 +111,13 @@ kt.confirm = function(text, callback, opt_title, opt_yes, opt_no) {
     callback(null);
   });
 
+  popup.append(String(text));
+
   var yesBtn = goog.dom.createDom(goog.dom.TagName.DIV,
       'btn-light', opt_yes || 'Yes');
   var noBtn = goog.dom.createDom(goog.dom.TagName.DIV,
       'btn-dark', opt_no || 'No');
-  popup.append(text, yesBtn, noBtn);
+  popup.appendActions(yesBtn, noBtn);
 
   goog.events.listen(yesBtn, goog.events.EventType.CLICK, function(e) {
     popup.setVisible(false);
