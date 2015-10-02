@@ -29,6 +29,7 @@ goog.require('goog.dom');
 goog.require('goog.net.cookies');
 
 
+
 /**
  * @param {string=} opt_text
  * @param {boolean=} opt_save
@@ -36,7 +37,7 @@ goog.require('goog.net.cookies');
  * @constructor
  */
 kt.notice = function(opt_text, opt_save, opt_closeCallback) {
-  
+
   var ktnotice = goog.net.cookies.get('kt.notice');
   if (ktnotice !== 'true') {
     /**
@@ -58,20 +59,20 @@ kt.notice = function(opt_text, opt_save, opt_closeCallback) {
     this.submit_ = goog.dom.createDom('button', {'class': 'btn'}, 'ok');
 
     goog.events.listen(
-            this.submit_,
-            goog.events.EventType.CLICK,
-            goog.bind(function() {
-              goog.dom.removeNode(this.wrap_);
-              //remember for next visit
-              if (opt_save) {
-                goog.net.cookies.set('kt.notice', 'true',
+        this.submit_,
+        goog.events.EventType.CLICK,
+        goog.bind(function() {
+          goog.dom.removeNode(this.wrap_);
+          //remember for next visit
+          if (opt_save) {
+            goog.net.cookies.set('kt.notice', 'true',
                         10 * 365 * 24 * 60 * 60, '/');
-              }
-              if (opt_closeCallback) {
-                opt_closeCallback();
-              }
-            }, this)
-            );
+          }
+          if (opt_closeCallback) {
+            opt_closeCallback();
+          }
+        }, this)
+    );
 
 
     goog.dom.appendChild(this.wrap_, this.text_);
