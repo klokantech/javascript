@@ -19,7 +19,7 @@ build/index.html: demo/index.html
 	cp $< $@
 	sed -i 's#http://localhost:9810/compile?id=kt-debug#kt.js#g' $@
 lint:
-	fixjsstyle --strict src/*.js
-	gjslint --strict src/*.js
+	fixjsstyle --strict -r src
+	gjslint --strict -r src
 webserver:
 	java -jar $(PLOVR) soyweb --dir .
