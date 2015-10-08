@@ -34,6 +34,8 @@ goog.require('kt.alert');
 goog.require('kt.expose');
 goog.require('kt.notice');
 goog.require('kt.prompt');
+goog.require('kt.upload.DriveUploader');
+goog.require('kt.upload.Uploader');
 
 
 /**
