@@ -27,6 +27,7 @@ goog.provide('kt.notice');
 
 goog.require('goog.dom');
 goog.require('goog.net.cookies');
+goog.require('kt.expose');
 
 
 
