@@ -33,6 +33,9 @@
         <a class="btn" href="#" id="uploader-choosebtn">Choose file</a>
       </div>
       <div id="uploader-progressbar"></div>
+      <div id="uploader-notsupported" style="display:none;">
+        Your browser is not compatible with this file uploader. Please, upgrade your browser to the latest version.
+      </div>
     </div>
 
     <script type="text/javascript">
@@ -62,7 +65,7 @@
 
       var gdriveUploader = new kt.upload.DriveUploader(tokenProvider);
 
-      new kt.upload.Uploader(gdriveUploader, 'uploader-dropzone', 'uploader-progressbar', 'uploader-file', 'uploader-choosebtn',
+      new kt.upload.Uploader(gdriveUploader, 'uploader-dropzone', 'uploader-progressbar', 'uploader-file', 'uploader-choosebtn', 'uploader-notsupported',
           function(success, response) {
             if (window.console && console.log) {
               console.log('done callback', success, response);

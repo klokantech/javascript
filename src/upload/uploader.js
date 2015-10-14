@@ -40,10 +40,11 @@ goog.require('kt.upload.DriveUploader.State');
  * @param {string|Element|undefined=} opt_progressBar
  * @param {string|Element|undefined=} opt_fileInput
  * @param {string|Element|undefined=} opt_chooseBtn
+ * @param {string|Element|undefined=} opt_notSupported
  * @param {function(boolean, Object)=} opt_callback
  */
 kt.upload.Uploader = function(uploader, opt_dropZone, opt_progressBar,
-                              opt_fileInput, opt_chooseBtn,
+                              opt_fileInput, opt_chooseBtn, opt_notSupported,
                               opt_callback) {
   this.dropZone_ = goog.dom.getElement(opt_dropZone || null);
   if (this.dropZone_) {
@@ -77,6 +78,25 @@ kt.upload.Uploader = function(uploader, opt_dropZone, opt_progressBar,
   }
 
   this.progressBar_ = goog.dom.getElement(opt_progressBar || null);
+
+  if (!(window.File && window.FileList && window.FileReader)) {
+    if (this.dropZone_) {
+      goog.style.setElementShown(this.dropZone_, false);
+    }
+    if (this.fileInput_) {
+      goog.style.setElementShown(this.fileInput_, false);
+    }
+    if (this.chooseBtn_) {
+      goog.style.setElementShown(this.chooseBtn_, false);
+    }
+    if (this.progressBar_) {
+      goog.style.setElementShown(this.progressBar_, false);
+    }
+    var notSupportedEl = goog.dom.getElement(opt_notSupported || null);
+    if (notSupportedEl) {
+      goog.style.setElementShown(notSupportedEl, true);
+    }
+  }
 
   this.setState_(kt.upload.DriveUploader.State.LOADING);
 
