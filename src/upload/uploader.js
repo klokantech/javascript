@@ -38,9 +38,12 @@ goog.require('kt.upload.DriveUploader.State');
  * @param {!kt.upload.DriveUploader} uploader
  * @param {string|Element|undefined=} opt_dropZone
  * @param {string|Element|undefined=} opt_progressBar
+ * @param {string|Element|undefined=} opt_fileInput
+ * @param {string|Element|undefined=} opt_chooseBtn
  * @param {function(boolean, Object)=} opt_callback
  */
 kt.upload.Uploader = function(uploader, opt_dropZone, opt_progressBar,
+                              opt_fileInput, opt_chooseBtn,
                               opt_callback) {
   this.dropZone_ = goog.dom.getElement(opt_dropZone || null);
   if (this.dropZone_) {
@@ -52,12 +55,26 @@ kt.upload.Uploader = function(uploader, opt_dropZone, opt_progressBar,
           this.handleFile_(e.getBrowserEvent().dataTransfer.files[0]);
         }, false, this);
   }
-  /*
-  this.uploadInput_ = goog.dom.getElement(opt_uploadInput);
-  if (this.uploadInput_) {
-    //TODO:
+
+  this.fileInput_ = goog.dom.getElement(opt_fileInput || null);
+  if (this.fileInput_) {
+    goog.events.listen(this.fileInput_, goog.events.EventType.CHANGE,
+        function(e) {
+          var file = this.fileInput_.files && this.fileInput_.files[0];
+          if (file) {
+            this.handleFile_(file);
+          }
+        }, false, this);
   }
-  */
+
+  this.chooseBtn_ = goog.dom.getElement(opt_chooseBtn || null);
+  if (this.chooseBtn_ && this.fileInput_) {
+    goog.events.listen(this.chooseBtn_, goog.events.EventType.CLICK,
+        function(e) {
+          this.fileInput_.click();
+          e.preventDefault();
+        }, false, this);
+  }
 
   this.progressBar_ = goog.dom.getElement(opt_progressBar || null);
 
@@ -92,6 +109,14 @@ kt.upload.Uploader.prototype.setState_ = function(state) {
   if (this.dropZone_) {
     goog.style.setElementShown(
         this.dropZone_, state == kt.upload.DriveUploader.State.READY);
+  }
+  if (this.fileInput_) {
+    goog.style.setElementShown(
+        this.fileInput_, state == kt.upload.DriveUploader.State.READY);
+  }
+  if (this.chooseBtn_) {
+    goog.style.setElementShown(
+        this.chooseBtn_, state == kt.upload.DriveUploader.State.READY);
   }
   if (this.progressBar_) {
     goog.style.setElementShown(
