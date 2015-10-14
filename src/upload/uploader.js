@@ -96,6 +96,7 @@ kt.upload.Uploader = function(uploader, opt_dropZone, opt_progressBar,
     if (notSupportedEl) {
       goog.style.setElementShown(notSupportedEl, true);
     }
+    return;
   }
 
   this.setState_(kt.upload.DriveUploader.State.LOADING);
