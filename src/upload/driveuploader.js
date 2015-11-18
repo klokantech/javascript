@@ -61,26 +61,18 @@ kt.upload.DriveUploader = function(tokenProvider, opt_folderId) {
   this.file_ = null;
   this.fileUrl_ = null;
   this.offset_ = 0;
-  this.chunkSize_ = 2 * 1024 * 1024;
+  this.chunkSize_ = 5 * 1024 * 1024;
   this.retryHandler_ = new kt.upload.RetryHandler();
 
-  var factory = new goog.net.CorsXmlHttpFactory();
-  var progressHandler = goog.bind(this.onXhrProgress_, this);
-  factory.createInstance = function() {
-    var xhr = goog.net.CorsXmlHttpFactory.prototype.createInstance.apply(this);
-    if (xhr && 'onprogress' in xhr) {
-      xhr.onprogress = progressHandler;
-      if (xhr.upload) {
-        xhr.upload.onprogress = progressHandler;
-      }
-    }
-    return xhr;
-  };
-  this.xhr_ = new goog.net.XhrIo(factory);
+  this.xhr_ = new goog.net.XhrIo(new goog.net.CorsXmlHttpFactory());
+  this.xhr_.listen(goog.net.EventType.PROGRESS,
+                   this.onXhrProgress_, false, this);
   this.xhr_.listen(goog.net.EventType.SUCCESS,
                    this.onXhrSuccess_, false, this);
   this.xhr_.listen(goog.net.EventType.ERROR,
                    this.onXhrError_, false, this);
+
+  this.xhr_.setProgressEventsEnabled(true);
 
   // consider 308 ("Resume Incomplete") success
   this.xhr_.isSuccess = function() {
