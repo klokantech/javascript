@@ -5,7 +5,6 @@
   "paths": ["src"],
 
   "externs": [
-    "//google_maps_api_v3.js" // for geocoder
   ],
 
   "define": {

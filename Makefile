@@ -1,20 +1,20 @@
-PLOVR_VERSION=2.0.0
+PLOVR_VERSION=4.1.1
 PLOVR=plovr.jar
 
 .PHONY: all plovr build serve lint webserver
 
 all: build
-plovr: $(PLOVR)
 build: build/kt.js build/index.html build/upload.html
 serve:
 	java -jar $(PLOVR) serve *.json
 build/%.js: %.json
 	mkdir -p build
 	java -jar $(PLOVR) build $< > $@
+.PHONY: plovr
+plovr: $(PLOVR)
 $(PLOVR):
-	wget -q --no-check-certificate https://registry.npmjs.org/plovr/-/plovr-$(PLOVR_VERSION).tgz
-	tar -xOzf plovr-$(PLOVR_VERSION).tgz package/bin/plovr.jar > $(PLOVR)
-	rm plovr-$(PLOVR_VERSION).tgz
+	rm -f plovr.jar
+	wget --no-check-certificate https://github.com/bolinfest/plovr/releases/download/v$(PLOVR_VERSION)/plovr.jar
 build/%.html: demo/%.html
 	cp $< $@
 	sed -i 's#http://localhost:9810/compile?id=kt-debug#kt.js#g' $@
