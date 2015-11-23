@@ -87,15 +87,33 @@ kt.CoordinateInput.convertDegreeStringToNumber = function(value) {
  * @return {string} Formatted string.
  */
 kt.CoordinateInput.convertNumberToDegreeString = function(value) {
+  var deg = 0, min = 0, sec = 0;
+
   var formatted = value < 0 ? '-' : '';
   value = Math.abs(value);
-  formatted += Math.floor(value).toFixed(0) + '°';
-  value = (value % 1) * 60;
-  formatted += Math.floor(value).toFixed(0) + '\'';
+  deg = Math.floor(value);
   value = (value % 1) * 60;
   if (value > 0) {
-    formatted += value.toFixed(3) + '"';
+    min = Math.floor(value);
+    value = (value % 1) * 60;
+    if (value > 0) {
+      sec = Math.round(value * 1000) / 1000;
+    }
   }
+
+  // The rounding on the lowest level (secs) can overflow to the higher orders.
+  if (sec >= 60) {
+    min++;
+    sec = 0;
+  }
+  if (min >= 60) {
+    deg++;
+    min = 0;
+  }
+
+  formatted += deg.toFixed(0) + '°';
+  if (min > 0) formatted += min.toFixed(0) + '\'';
+  if (sec > 0) formatted += sec.toFixed(3).replace(/\.*0+$/, '') + '"';
 
   return formatted;
 };
