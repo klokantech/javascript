@@ -112,7 +112,7 @@ kt.CoordinateInput.convertNumberToDegreeString = function(value) {
   }
 
   formatted += deg.toFixed(0) + '°';
-  if (min > 0) formatted += min.toFixed(0) + '\'';
+  if (min > 0 || sec > 0) formatted += min.toFixed(0) + '\'';
   if (sec > 0) formatted += sec.toFixed(3).replace(/\.*0+$/, '') + '"';
 
   return formatted;
