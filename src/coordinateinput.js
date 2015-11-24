@@ -43,10 +43,23 @@ kt.CoordinateInput = function(input) {
   this.input_ = goog.dom.getElement(input);
 
   /**
+   * @type {Element}
+   * @private
+   */
+  this.label_ = goog.array.find(
+      goog.dom.getElementsByTagNameAndClass(goog.dom.TagName.LABEL, undefined,
+          goog.dom.getParentElement(this.input_)),
+      function(el, i, arr) {
+        return el.htmlFor == this.input_.id;
+      }, this);
+
+  /**
    * @type {boolean}
    * @private
    */
   this.formatDegrees_ = false;
+
+  this.enableDegrees(false);
 };
 
 
@@ -60,7 +73,13 @@ kt.CoordinateInput.prototype.enableDegrees = function(enable) {
   this.setValue(value);
 
   this.input_.placeholder = this.input_.getAttribute(this.formatDegrees_ ?
-      'data-placeholder-degrees' : 'data-placeholder');
+      'data-placeholder-degrees' : 'data-placeholder') ||
+      this.input_.placeholder;
+
+  if (this.label_) {
+    this.label_.innerHTML = this.label_.getAttribute(this.formatDegrees_ ?
+        'data-value-degrees' : 'data-value') || this.label_.innerHTML;
+  }
 
 };
 
