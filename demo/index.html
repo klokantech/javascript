@@ -9,13 +9,16 @@
 
     <script type="text/javascript" src="http://localhost:9810/compile?id=kt-debug"></script>
   </head>
-  <body onload="kt.decorate();load();">
+  <body onload="load();">
     <div class="container main">
       <h3>Alerts</h3>
       <a class="btn" href="#" onclick="kt.alert('Hi!');">Show alert minimal</a>
       <a class="btn" href="#" onclick="kt.alert('Alert text!', 'Alert title', 'Okay');">Show alert complex</a>
       <a class="btn" href="#" onclick="kt.prompt('Enter some value:', function(val) {kt.alert(val);}, 'Value prompt', 'Okay', 'Back', 'Default value');">Show prompt</a>
       <a class="btn" href="#" onclick="kt.confirm('Are you sure?', function(val) {kt.alert(val);}, 'Confirm');">Show confirm</a>
+
+      <h3>Calendar</h3>
+      <input type="date" id="calendar" /><a class="btn" href="#" onclick="kt.alert(document.getElementById('calendar').value);">Show value</a>
 
       <h3>Autocomplete</h3>
       <input type="text" class="autocomplete-nominatim" />
@@ -25,9 +28,12 @@
     </div>
     <script>
       function load() {
+        kt.decorate();
+        kt.DateInput.decorateAll('yyyy-MM-dd');
+
         // load some extra features
         new kt.MultiComplete('multicomplete', ['test|10', 'testing|1', 'tester', 'beta tester|23', 'alpha testing', 'geology', 'Table', 'Googlebot', 'Instant', 'Mustang']);
-        
+
         //notification with cookies store
         new kt.notice('Cookies help us to deliver our services. By using our services, you agree to our use of cookies.', true, function(){alert('ok')});
       }
