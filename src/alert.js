@@ -24,6 +24,7 @@
  */
 
 goog.provide('kt.alert');
+goog.provide('kt.confirm');
 goog.provide('kt.prompt');
 
 goog.require('goog.dom');
