@@ -150,6 +150,14 @@ kt.CoordinateInput.prototype.getValue = function() {
 
 
 /**
+ * @return {boolean} Has proper numerical value.
+ */
+kt.CoordinateInput.prototype.hasValue = function() {
+  return goog.math.isFiniteNumber(this.getValue());
+};
+
+
+/**
  * @param {number} value Decimal value of the input.
  */
 kt.CoordinateInput.prototype.setValue = function(value) {
