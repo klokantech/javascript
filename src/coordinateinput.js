@@ -76,9 +76,12 @@ kt.CoordinateInput.prototype.enableDegrees = function(enable) {
       'data-placeholder-degrees' : 'data-placeholder') ||
       this.input_.placeholder;
 
+  goog.dom.classlist.enable(this.input_, 'degrees', enable);
+
   if (this.label_) {
     this.label_.innerHTML = this.label_.getAttribute(this.formatDegrees_ ?
         'data-value-degrees' : 'data-value') || this.label_.innerHTML;
+    goog.dom.classlist.enable(this.label_, 'degrees', enable);
   }
 
 };
