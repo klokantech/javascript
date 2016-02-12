@@ -24,6 +24,7 @@
  */
 
 goog.provide('kt.CoordinateInput');
+goog.provide('kt.CoordinateInput.DegreeFormat');
 
 goog.require('goog.dom');
 
@@ -59,6 +60,12 @@ kt.CoordinateInput = function(input) {
    */
   this.formatDegrees_ = false;
 
+  /**
+   * @type {kt.CoordinateInput.DegreeFormat}
+   * @private
+   */
+  this.format_ = kt.CoordinateInput.DegreeFormat.DMS;
+
   this.enableDegrees(false);
 };
 
@@ -88,6 +95,16 @@ kt.CoordinateInput.prototype.enableDegrees = function(enable) {
 
 
 /**
+ * @param {kt.CoordinateInput.DegreeFormat} format
+ */
+kt.CoordinateInput.prototype.setDegreeFormat = function(format) {
+  var value = this.getValue();
+  this.format_ = format;
+  this.setValue(value);
+};
+
+
+/**
  * @param {string} value Formatted string.
  * @return {number} Decimal value of the input.
  */
@@ -106,36 +123,52 @@ kt.CoordinateInput.convertDegreeStringToNumber = function(value) {
 
 /**
  * @param {number} value Decimal value of the input.
+ * @param {kt.CoordinateInput.DegreeFormat=} opt_format
  * @return {string} Formatted string.
  */
-kt.CoordinateInput.convertNumberToDegreeString = function(value) {
-  var deg = 0, min = 0, sec = 0;
+kt.CoordinateInput.convertNumberToDegreeString = function(value, opt_format) {
+  var format = opt_format || kt.CoordinateInput.DegreeFormat.DMS;
+
+  var degStr = null, minStr = null, secStr = null;
 
   var formatted = value < 0 ? '-' : '';
   value = Math.abs(value);
-  deg = Math.floor(value);
-  value = (value % 1) * 60;
-  if (value > 0) {
-    min = Math.floor(value);
+  if (format == kt.CoordinateInput.DegreeFormat.DECIMAL) {
+    degStr = value.toFixed(7).replace(/\.*0+$/, '');
+  } else {
+    var deg = Math.floor(value);
     value = (value % 1) * 60;
     if (value > 0) {
-      sec = Math.round(value * 1000) / 1000;
+      var min;
+      if (format == kt.CoordinateInput.DegreeFormat.DMS) {
+        min = Math.floor(value);
+        value = (value % 1) * 60;
+        if (value > 0) {
+          var sec = Math.round(value * 1e3) / 1e3;
+          // The rounding on the lowest level can overflow to the higher order.
+          if (sec >= 60) {
+            min++;
+            sec = 0;
+          }
+          secStr = sec.toFixed(3).replace(/\.*0+$/, '');
+        }
+      } else {
+        min = Math.round(value * 1e5) / 1e5;
+      }
+      if (min >= 60) {
+        deg++;
+        min = 0;
+      }
+      minStr = min.toFixed(
+                   format == kt.CoordinateInput.DegreeFormat.DMS ? 0 : 5);
+      degStr = deg.toFixed(0);
     }
+
   }
 
-  // The rounding on the lowest level (secs) can overflow to the higher orders.
-  if (sec >= 60) {
-    min++;
-    sec = 0;
-  }
-  if (min >= 60) {
-    deg++;
-    min = 0;
-  }
-
-  formatted += deg.toFixed(0) + '°';
-  if (min > 0 || sec > 0) formatted += min.toFixed(0) + '\'';
-  if (sec > 0) formatted += sec.toFixed(3).replace(/\.*0+$/, '') + '"';
+  formatted += degStr + '°';
+  if (minStr) formatted += minStr + '\'';
+  if (secStr) formatted += secStr + '"';
 
   return formatted;
 };
@@ -169,8 +202,29 @@ kt.CoordinateInput.prototype.setValue = function(value) {
     return;
   }
   this.input_.value = this.formatDegrees_ ?
-      kt.CoordinateInput.convertNumberToDegreeString(value) : value;
+      kt.CoordinateInput.convertNumberToDegreeString(value, this.format_) :
+      value;
+};
+
+
+/**
+ */
+kt.CoordinateInput.prototype.reformatValue = function() {
+  var value = this.getValue();
+  this.setValue(value);
+};
+
+
+/**
+ * @enum {string}
+ */
+kt.CoordinateInput.DegreeFormat = {
+  DECIMAL: 'Decimal',
+  DM: 'D°M\'',
+  DMS: 'D°M\'S"'
 };
 
 
 kt.expose.symbol('kt.CoordinateInput', kt.CoordinateInput);
+kt.expose.symbol('kt.CoordinateInput.DegreeFormat',
+                 kt.CoordinateInput.DegreeFormat);
