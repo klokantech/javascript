@@ -39,7 +39,7 @@ goog.require('kt.upload.RetryHandler');
 /**
  * Based on https://github.com/googledrive/cors-upload-sample.
  *
- * @param {string|function(function(string))} tokenProvider
+ * @param {string|function(function(string, string=))} tokenProvider
  * @param {string=} opt_folderId
  * @constructor
  * @extends {goog.events.EventTarget}
@@ -50,9 +50,10 @@ kt.upload.DriveUploader = function(tokenProvider, opt_folderId) {
   this.state_ = kt.upload.DriveUploader.State.LOADING;
   this.token_ = null;
   this.tokenProvider_ = goog.isString(tokenProvider) ? function(callback) {
-    var jsonp = new goog.net.Jsonp(/** @type {string} */(tokenProvider));
-    jsonp.send(undefined, function(data) {
-      callback(data['access_token']);
+    goog.net.XhrIo.send(/** @type {string} */(tokenProvider), function(e) {
+      var xhrio = /** @type {goog.net.XhrIo} */(e.target);
+      var json = xhrio.getResponseJson();
+      callback(json['access_token'], json['folder_id']);
     });
   } : tokenProvider;
 
@@ -110,8 +111,9 @@ kt.upload.DriveUploader.prototype.getState = function() {
  */
 kt.upload.DriveUploader.prototype.init = function() {
   if (goog.isNull(this.token_) && this.tokenProvider_) {
-    this.tokenProvider_(goog.bind(function(token) {
+    this.tokenProvider_(goog.bind(function(token, opt_folderId) {
       this.token_ = token;
+      this.folderId_ = this.folderId_ || opt_folderId || null;
       this.setState_(kt.upload.DriveUploader.State.READY);
     }, this));
   }
