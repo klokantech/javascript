@@ -39,10 +39,11 @@ goog.require('kt.expose');
  * @param {!Element|!string} container Container element.
  * @param {!Array|!string} data Array of completable values or url.
  * @param {boolean=} opt_useSimilar Whether to use similar matches.
+ * @param {boolean=} opt_allowShowAll Allow showing all results for no filter.
  * @constructor
  * @extends {goog.ui.ac.AutoComplete}
  */
-kt.MultiComplete = function(container, data, opt_useSimilar) {
+kt.MultiComplete = function(container, data, opt_useSimilar, opt_allowShowAll) {
   /**
    * @type {!Element}
    * @protected
@@ -53,9 +54,23 @@ kt.MultiComplete = function(container, data, opt_useSimilar) {
    * @type {!Element}
    * @protected
    */
-  this.inputElement = goog.dom.createDom(goog.dom.TagName.INPUT,
-                                         {type: 'text'});
+  this.inputElement = goog.dom.createDom(goog.dom.TagName.INPUT, {
+                        type: 'text',
+                        size: 3
+                      });
   goog.dom.appendChild(this.container, this.inputElement);
+
+  /**
+   * @type {boolean}
+   * @private
+   */
+  this.allowShowAll_ = opt_allowShowAll || false;
+
+  /**
+   * @type {!Array|!string}
+   * @private
+   */
+  this.data_ = data;
 
   /**
    * @type {!goog.ui.ac.ArrayMatcher|!goog.ui.ac.RemoteArrayMatcher}
@@ -83,6 +98,7 @@ kt.MultiComplete = function(container, data, opt_useSimilar) {
   this.handler.attachAutoComplete(this);
   this.handler.attachInputs(this.inputElement);
   this.handler.setPreventDefaultOnTab(true);
+  this.setTarget(this.inputElement);
 
   /**
    * @type {!Array.<{val: !string, el: !Element, closer: !Element}>}
@@ -100,12 +116,18 @@ kt.MultiComplete = function(container, data, opt_useSimilar) {
   goog.events.listen(this.container, goog.events.EventType.CLICK,
       function(e) {
         this.inputElement.focus();
+        this.renderAll_();
+      }, false, this);
+
+  goog.events.listen(this.inputElement, goog.events.EventType.FOCUS,
+      function(e) {
+        this.renderAll_();
       }, false, this);
 
   goog.events.listen(this.inputElement, [goog.events.EventType.CHANGE,
                                          goog.events.EventType.KEYDOWN],
   function(e) {
-    this.inputElement.size = this.inputElement.value.length + 1;
+    this.inputElement.size = Math.max(3, this.inputElement.value.length + 1);
   }, false, this);
 
   goog.events.listen(this.inputElement, goog.events.EventType.KEYDOWN,
@@ -144,8 +166,20 @@ kt.MultiComplete.prototype.renderRows = function(rows, opt_options) {
 
 
 /**
+ * @private
+ */
+kt.MultiComplete.prototype.renderAll_ = function() {
+  if (this.allowShowAll_ &&
+      this.inputElement.value == '' &&
+      goog.isArray(this.data_)) {
+    this.setTokenInternal('');
+    this.renderRows(this.data_);
+  }
+};
+
+
+/**
  * @param {string} v
- * @protected
  */
 kt.MultiComplete.prototype.addValue = function(v) {
   var closer = goog.dom.createDom(goog.dom.TagName.A,
@@ -157,6 +191,7 @@ kt.MultiComplete.prototype.addValue = function(v) {
   goog.events.listen(closer, goog.events.EventType.CLICK, function(e) {
     this.removeValue(newLength - 1);
     this.inputElement.focus();
+    this.renderAll_();
     e.preventDefault();
   }, false, this);
 
