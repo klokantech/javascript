@@ -40,10 +40,12 @@ goog.require('kt.expose');
  * @param {!Array|!string} data Array of completable values or url.
  * @param {boolean=} opt_useSimilar Whether to use similar matches.
  * @param {boolean=} opt_allowShowAll Allow showing all results for no filter.
+ * @param {boolean=} opt_allowCustom Allow value not present in the results.
  * @constructor
  * @extends {goog.ui.ac.AutoComplete}
  */
-kt.MultiComplete = function(container, data, opt_useSimilar, opt_allowShowAll) {
+kt.MultiComplete = function(container, data, opt_useSimilar, opt_allowShowAll,
+                            opt_allowCustom) {
   /**
    * @type {!Element}
    * @protected
@@ -138,6 +140,16 @@ kt.MultiComplete = function(container, data, opt_useSimilar, opt_allowShowAll) {
         }
         // do not close on enter
         if (e.keyCode == 13 && !this.isOpen()) {
+          var value = this.inputElement.value;
+          if (opt_allowCustom && value.length > 0) {
+            if (!goog.array.find(this.values, function(el) {
+              return el.val == value;
+            })) {
+
+              this.addValue(value);
+              this.inputElement.value = '';
+            }
+          }
           e.stopPropagation();
           e.preventDefault();
         }
