@@ -36,19 +36,45 @@ goog.require('kt.expose');
 
 /**
  * @param {Element|string} element
- * @param {string=} opt_pattern
+ * @param {goog.i18n.DateTimeFormat.Format<number>|string=} opt_pattern
  * @constructor
  */
 kt.DateInput = function(element, opt_pattern) {
   element = goog.dom.getElement(element);
+
+  this.idp_ = null;
 
   if (element) {
     var pattern = opt_pattern || goog.i18n.DateTimeFormat.Format.SHORT_DATE;
     var formatter = new goog.i18n.DateTimeFormat(pattern);
     var parser = new goog.i18n.DateTimeParse(pattern);
 
-    var idp = new goog.ui.InputDatePicker(formatter, parser);
-    idp.decorate(element);
+    this.idp_ = new goog.ui.InputDatePicker(formatter, parser);
+    this.idp_.decorate(element);
+  }
+};
+
+
+/**
+ * @param {Date} date
+ */
+kt.DateInput.prototype.setDate = function(date) {
+  if (this.idp_) {
+    var date_ = new goog.date.Date();
+    date_.setTime(date.getTime());
+    this.idp_.setDate(date_);
+  }
+};
+
+
+/**
+ * @return {goog.date.Date}
+ */
+kt.DateInput.prototype.getDate = function() {
+  if (this.idp_) {
+    return this.idp_.getDate();
+  } else {
+    return new goog.date.Date();
   }
 };
 
