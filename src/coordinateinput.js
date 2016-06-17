@@ -71,6 +71,14 @@ kt.CoordinateInput = function(input) {
 
 
 /**
+ * @const {RegExp}
+ */
+kt.CoordinateInput.DEGREESTRING_REGEXP = new RegExp(
+    '^\\s*(-?\\d+(\\.\\d*)?)\\s*([°|\\s]\\s*(\\d+(\\.\\d*)?)?)?' +
+    '\\s*([\'|\\s]\\s*(\\d+(\\.\\d*)?)?)?\\s*"?\\s*$');
+
+
+/**
  * Enable/disable formatting of value as degrees.
  * @param {boolean} enable
  */
@@ -106,13 +114,30 @@ kt.CoordinateInput.prototype.setDegreeFormat = function(format) {
 
 /**
  * @param {string} value Formatted string.
+ * @return {kt.CoordinateInput.DegreeFormat} Guessed degree format.
+ */
+kt.CoordinateInput.prototype.guessDegreeFormat = function(value) {
+  var matches = kt.CoordinateInput.DEGREESTRING_REGEXP.exec(value);
+  if (!matches) {
+    return kt.CoordinateInput.DegreeFormat.DECIMAL;
+  } else {
+    if (goog.isDefAndNotNull(matches[7])) {
+      return kt.CoordinateInput.DegreeFormat.DMS;
+    } else if (goog.isDefAndNotNull(matches[4])) {
+      return kt.CoordinateInput.DegreeFormat.DM;
+    } else {
+      return kt.CoordinateInput.DegreeFormat.DECIMAL;
+    }
+  }
+};
+
+
+/**
+ * @param {string} value Formatted string.
  * @return {number} Decimal value of the input.
  */
 kt.CoordinateInput.convertDegreeStringToNumber = function(value) {
-  var re = new RegExp(
-      '^\\s*(-?\\d+(\\.\\d+)?)\\s*([°|\\s]\\s*(\\d+(\\.\\d+)?)?)?' +
-      '\\s*([\'|\\s]\\s*(\\d+(\\.\\d+)?)?)?\\s*"?\\s*$');
-  var matches = re.exec(value);
+  var matches = kt.CoordinateInput.DEGREESTRING_REGEXP.exec(value);
   if (!matches) return NaN;
   var gra = goog.string.toNumber(matches[1]) || 0;
   var min = goog.string.toNumber(matches[4]) || 0;
@@ -194,16 +219,17 @@ kt.CoordinateInput.prototype.hasValue = function() {
 
 
 /**
- * @param {number} value Decimal value of the input.
+ * @param {string|number} value_ Decimal value of the input.
  */
-kt.CoordinateInput.prototype.setValue = function(value) {
-  if (!goog.math.isFiniteNumber(value)) {
+kt.CoordinateInput.prototype.setValue = function(value_) {
+  var value = parseFloat(value_);
+  if (!goog.isNumber(value) || !goog.math.isFiniteNumber(value)) {
     this.input_.value = '';
     return;
   }
   this.input_.value = this.formatDegrees_ ?
       kt.CoordinateInput.convertNumberToDegreeString(value, this.format_) :
-      value;
+      value_;
 };
 
 
@@ -212,6 +238,49 @@ kt.CoordinateInput.prototype.setValue = function(value) {
 kt.CoordinateInput.prototype.reformatValue = function() {
   var value = this.getValue();
   this.setValue(value);
+};
+
+
+/**
+ * @param {!function(string)=} opt_valueCallback
+ * @param {!function(kt.CoordinateInput.DegreeFormat)=} opt_formatCallback
+ * @return {!Array.<number>} Listen key(s).
+ */
+kt.CoordinateInput.prototype.setupCallbacks =
+    function(opt_valueCallback, opt_formatCallback) {
+
+  var handleCommit = goog.bind(function() {
+    if (this.formatDegrees_) {
+      if (opt_formatCallback) {
+        opt_formatCallback(this.guessDegreeFormat(this.input_.value));
+      }
+    }
+    if (opt_valueCallback) {
+      if (this.formatDegrees_ &&
+          this.format_ != kt.CoordinateInput.DegreeFormat.DECIMAL) {
+        opt_valueCallback(this.getValue().toString());
+      } else {
+        opt_valueCallback(this.input_.value);
+      }
+    }
+  }, this);
+
+  return [
+    goog.events.listen(this.input_, goog.events.EventType.KEYDOWN, function(e) {
+      if (this.formatDegrees_) {
+        if (e.keyCode == 13) {
+          handleCommit();
+        }
+      }
+      e.stopPropagation();
+    }, false, this),
+    goog.events.listen(this.input_, goog.events.EventType.BLUR, function(e) {
+      if (this.formatDegrees_) {
+        handleCommit();
+      }
+      e.stopPropagation();
+    }, false, this)
+  ];
 };
 
 
