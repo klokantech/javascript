@@ -103,6 +103,14 @@ kt.CoordinateInput.prototype.enableDegrees = function(enable) {
 
 
 /**
+ * @return {boolean}
+ */
+kt.CoordinateInput.prototype.hasDegreesEnabled = function() {
+  return this.formatDegrees_;
+};
+
+
+/**
  * @param {kt.CoordinateInput.DegreeFormat} format
  */
 kt.CoordinateInput.prototype.setDegreeFormat = function(format) {
@@ -288,9 +296,9 @@ kt.CoordinateInput.prototype.setupCallbacks =
  * @enum {string}
  */
 kt.CoordinateInput.DegreeFormat = {
-  DECIMAL: 'Decimal',
-  DM: 'D°M\'',
-  DMS: 'D°M\'S"'
+  DECIMAL: 'dec',
+  DM: 'dm',
+  DMS: 'dms'
 };
 
 
