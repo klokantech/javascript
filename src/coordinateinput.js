@@ -275,17 +275,13 @@ kt.CoordinateInput.prototype.setupCallbacks =
 
   return [
     goog.events.listen(this.input_, goog.events.EventType.KEYDOWN, function(e) {
-      if (this.formatDegrees_) {
-        if (e.keyCode == 13) {
-          handleCommit();
-        }
+      if (e.keyCode == 13) {
+        handleCommit();
       }
       e.stopPropagation();
     }, false, this),
     goog.events.listen(this.input_, goog.events.EventType.BLUR, function(e) {
-      if (this.formatDegrees_) {
-        handleCommit();
-      }
+      handleCommit();
       e.stopPropagation();
     }, false, this)
   ];
