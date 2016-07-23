@@ -23,6 +23,9 @@
       <h3>Autocomplete</h3>
       <input type="text" class="autocomplete-nominatim" />
 
+      <h3>OSM Names</h3>
+      <input type="text" id="osmnames-autocomplete" />
+
       <h3>Multicomplete</h3>
       <span class="multicomplete" id="multicomplete"></span>
     </div>
@@ -30,6 +33,8 @@
       function load() {
         kt.decorate();
         kt.DateInput.decorateAll('yyyy-MM-dd');
+
+        new kt.OsmNamesAutocomplete('osmnames-autocomplete');
 
         // load some extra features
         new kt.MultiComplete('multicomplete', ['test|10', 'testing|1', 'tester', 'beta tester|23', 'alpha testing', 'geology', 'Table', 'Googlebot', 'Instant', 'Mustang']);
