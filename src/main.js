@@ -32,6 +32,7 @@ goog.require('kt.DateInput');
 goog.require('kt.MultiComplete');
 goog.require('kt.Nominatim');
 goog.require('kt.OsmNamesAutocomplete');
+goog.require('kt.VectorMap');
 goog.require('kt.alert');
 goog.require('kt.expose');
 goog.require('kt.notice');

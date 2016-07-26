@@ -5,6 +5,8 @@
   "paths": ["src"],
 
   "externs": [
+    "./externs/ol3-3.16.0.js",
+    "./externs/ol3-extra.js"
   ],
 
   "define": {
