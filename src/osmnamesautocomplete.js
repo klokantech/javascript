@@ -27,6 +27,7 @@ goog.provide('kt.OsmNamesAutocomplete');
 goog.provide('kt.OsmNamesMatcher');
 
 goog.require('goog.dom');
+goog.require('goog.net.XhrIo');
 goog.require('goog.ui.ac.AutoComplete');
 goog.require('goog.ui.ac.InputHandler');
 goog.require('goog.ui.ac.Renderer');
@@ -38,11 +39,10 @@ goog.require('kt.expose');
 /**
 * @param {!Element|string} input Input element or text area.
 * @param {string=} opt_url The Uri of the OSM Names service.
-* @param {Object=} opt_payload
 * @constructor
 * @extends {goog.ui.ac.AutoComplete}
 */
-kt.OsmNamesAutocomplete = function(input, opt_url, opt_payload) {
+kt.OsmNamesAutocomplete = function(input, opt_url) {
   // Create a custom renderer that renders rich rows returned from server.
   var customRenderer = {};
   customRenderer.renderRow = function(row, token, node) {
@@ -70,7 +70,7 @@ kt.OsmNamesAutocomplete = function(input, opt_url, opt_payload) {
   * @protected
   * @suppress {underscore}
   */
-  this.matcher_ = new kt.OsmNamesMatcher(opt_url, opt_payload);
+  this.matcher_ = new kt.OsmNamesMatcher(opt_url);
 
   /**
   * An input handler that calls select on a row when it is selected.
@@ -182,29 +182,14 @@ kt.expose.symbol('kt.OsmNamesAutocomplete.prototype.registerCallback',
 /**
 * An array matcher that requests matches via JSONP.
 * @param {string=} opt_url The Uri of the web service.
-* @param {Object.<string, string>=} opt_payload The list of extra parameters
-for the Jsonp request.
 * @constructor
 */
-kt.OsmNamesMatcher = function(opt_url, opt_payload) {
+kt.OsmNamesMatcher = function(opt_url) {
   /**
   * @type {string}
   * @private
   */
   this.url_ = opt_url || 'http://osmnames.klokantech.com/';
-
-  /**
-  * The list of extra parameters for the Jsonp request
-  * @type {!Object}
-  * @private
-  */
-  this.payload_ = opt_payload || {};
-
-  /**
-  * @type {!goog.net.Jsonp}
-  * @private
-  */
-  this.jsonp_ = new goog.net.Jsonp(this.url_);
 };
 
 
@@ -221,10 +206,6 @@ kt.OsmNamesMatcher = function(opt_url, opt_payload) {
 */
 kt.OsmNamesMatcher.prototype.requestMatchingRows =
     function(token, maxMatches, matchHandler) {
-  this.payload_['q'] = token;
-  this.payload_['format'] = 'json';
-  this.payload_['autocomplete'] = 1;
-  this.payload_['count'] = maxMatches;
 
   // Ignore token which is empty or just one letter
   if (!token || token.length == 1) {
@@ -237,9 +218,20 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
   if (maxMatches > 1 && token === this.oldtoken_) return;
 
   // Cancel old request when we have a new one
-  if (this.request_ !== null) this.jsonp_.cancel(this.request_);
+  if (this.request_) {
+    this.request_.abort();
+    this.request_ = null;
+  }
 
-  this.request_ = this.jsonp_.send(this.payload_, function(response) {
+  var url = this.url_ + '?q=' + encodeURIComponent(token) +
+            '&format=json&autocomplete=1&count=' + maxMatches;
+
+  this.request_ = goog.net.XhrIo.send(url, goog.bind(function(e) {
+    var xhr = e.target;
+    if (!xhr.isSuccess()) {
+      return;
+    }
+    var response = xhr.getResponseJson();
     var results = response['results'];
 
     var addFormattedNameAndType = function(results) {
@@ -259,5 +251,7 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
     };
 
     matchHandler(token, addFormattedNameAndType(results));
-  });
+
+    this.request_ = null;
+  }, this));
 };
