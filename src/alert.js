@@ -39,8 +39,9 @@ goog.require('kt.expose');
  * @param {*} text
  * @param {string=} opt_title
  * @param {string=} opt_ok Text for the OK button. Default is 'OK'.
+ * @param {Function=} opt_callback Function to call after 'OK'.
  */
-kt.alert = function(text, opt_title, opt_ok) {
+kt.alert = function(text, opt_title, opt_ok, opt_callback) {
   var popup = new kt.Popup(opt_title, true);
 
   popup.append(String(text));
@@ -49,6 +50,9 @@ kt.alert = function(text, opt_title, opt_ok) {
 
   goog.events.listen(okBtn, goog.events.EventType.CLICK, function(e) {
     popup.setVisible(false);
+    if (opt_callback) {
+      opt_callback();
+    }
     e.preventDefault();
   });
 
