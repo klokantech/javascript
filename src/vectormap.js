@@ -50,6 +50,8 @@ kt.VectorMap = function(styleJson, tileJson, mapOrElement, glElement) {
     }))
   });
 
+  this.olMapPrecomposeListenKey_ = null;
+
   /**
    * @type {?Object}
    * @private
@@ -68,7 +70,7 @@ kt.VectorMap = function(styleJson, tileJson, mapOrElement, glElement) {
 
     var view = this.olMap_.getView();
 
-    this.olMap_.on('precompose', function(e) {
+    this.olMapPrecomposeListenKey_ = this.olMap_.on('precompose', function(e) {
       var viewState = (e.frameState || {}).viewState;
       if (viewState) {
         this.glMap_['jumpTo']({
@@ -99,6 +101,30 @@ kt.VectorMap.prototype.getMap = function() {
 };
 
 
+/**
+ * Destroys the vector/raster layers (and gl map),
+ * but keeps ol map.
+ */
+kt.VectorMap.prototype.destroy = function() {
+  if (this.glMap_) {
+    var container = goog.dom.getElement(this.glMap_['getContainer']());
+    this.glMap_['remove']();
+    if (container) {
+      goog.dom.removeChildren(container);
+    }
+    this.glMap_ = null;
+  } else {
+    this.olMap_.getLayers().removeAt(0);
+  }
+  if (this.olMapPrecomposeListenKey_) {
+    this.olMap_.unByKey(this.olMapPrecomposeListenKey_);
+    this.olMapPrecomposeListenKey_ = null;
+  }
+};
+
+
 kt.expose.symbol('kt.VectorMap', kt.VectorMap);
 kt.expose.symbol('kt.VectorMap.prototype.getMap',
                  kt.VectorMap.prototype.getMap);
+kt.expose.symbol('kt.VectorMap.prototype.destroy',
+                 kt.VectorMap.prototype.destroy);
