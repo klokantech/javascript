@@ -189,7 +189,7 @@ kt.OsmNamesMatcher = function(opt_url) {
   * @type {string}
   * @private
   */
-  this.url_ = opt_url || 'http://osmnames.klokantech.com/';
+  this.url_ = opt_url || 'https://osmnames.klokantech.com/';
 };
 
 
