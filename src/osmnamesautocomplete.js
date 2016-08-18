@@ -38,11 +38,22 @@ goog.require('kt.expose');
 
 /**
 * @param {!Element|string} input Input element or text area.
+* @param {boolean=} opt_hash Use location hash for permalink.
 * @param {string=} opt_url The Uri of the OSM Names service.
 * @constructor
 * @extends {goog.ui.ac.AutoComplete}
 */
-kt.OsmNamesAutocomplete = function(input, opt_url) {
+kt.OsmNamesAutocomplete = function(input, opt_hash, opt_url) {
+  /**
+   * @type {goog.Uri.QueryData}
+   * @private
+   */
+  this.parsedHash_ = null;
+
+  if (opt_hash) {
+    this.parsedHash_ = new goog.Uri.QueryData((location.hash || '').substr(1));
+  }
+
   // Create a custom renderer that renders rich rows returned from server.
   var customRenderer = {};
   customRenderer.renderRow = function(row, token, node) {
@@ -70,7 +81,7 @@ kt.OsmNamesAutocomplete = function(input, opt_url) {
   * @protected
   * @suppress {underscore}
   */
-  this.matcher_ = new kt.OsmNamesMatcher(opt_url);
+  this.matcher_ = new kt.OsmNamesMatcher(opt_url, this.parsedHash_);
 
   /**
   * An input handler that calls select on a row when it is selected.
@@ -96,6 +107,16 @@ kt.OsmNamesAutocomplete = function(input, opt_url) {
   }, false, this);
 
   this.enable(true);
+
+  if (this.parsedHash_) {
+    var q = this.parsedHash_.get('q');
+    if (q && goog.isString(q)) {
+      setTimeout(goog.bind(function() {
+        this.input_.value = q.toString();
+        this.inputhandler_.update();
+      }, this), 0);
+    }
+  }
 };
 goog.inherits(kt.OsmNamesAutocomplete, goog.ui.ac.AutoComplete);
 
@@ -182,14 +203,21 @@ kt.expose.symbol('kt.OsmNamesAutocomplete.prototype.registerCallback',
 /**
 * An array matcher that requests matches via JSONP.
 * @param {string=} opt_url The Uri of the web service.
+* @param {goog.Uri.QueryData=} opt_hashQueryData
 * @constructor
 */
-kt.OsmNamesMatcher = function(opt_url) {
+kt.OsmNamesMatcher = function(opt_url, opt_hashQueryData) {
   /**
   * @type {string}
   * @private
   */
   this.url_ = opt_url || 'https://osmnames.klokantech.com/';
+
+  /**
+   * @type {goog.Uri.QueryData}
+   * @private
+   */
+  this.hashQueryData_ = opt_hashQueryData || null;
 };
 
 
@@ -223,8 +251,29 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
     this.request_ = null;
   }
 
-  var url = this.url_ + '?q=' + encodeURIComponent(token) +
-            '&format=json&autocomplete=1&count=' + maxMatches;
+  var qd = this.hashQueryData_ ?
+      this.hashQueryData_.clone() : new goog.Uri.QueryData();
+  qd.set('format', 'json');
+  qd.set('autocomplete', '1');
+  qd.set('count', maxMatches.toString());
+  qd.set('q', token);
+  if (this.hashQueryData_) {
+    this.hashQueryData_.set('q', token);
+    location.hash = this.hashQueryData_.toString();
+  }
+
+  // Make sure the keys are properly sorted to optimize caching
+  var keys = qd.getKeys();
+  goog.array.sort(keys);
+
+  var url = this.url_ + '?';
+  goog.array.forEach(keys, function(key, i) {
+    if (i != 0) {
+      url += '&';
+    }
+    url += encodeURIComponent(key) + '=' +
+           encodeURIComponent(qd.get(key).toString());
+  });
 
   this.request_ = goog.net.XhrIo.send(url, goog.bind(function(e) {
     var xhr = e.target;
