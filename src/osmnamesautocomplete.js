@@ -27,6 +27,7 @@ goog.provide('kt.OsmNamesAutocomplete');
 goog.provide('kt.OsmNamesMatcher');
 
 goog.require('goog.dom');
+goog.require('goog.dom.classlist');
 goog.require('goog.net.XhrIo');
 goog.require('goog.ui.ac.AutoComplete');
 goog.require('goog.ui.ac.InputHandler');
@@ -81,7 +82,8 @@ kt.OsmNamesAutocomplete = function(input, opt_hash, opt_url) {
   * @protected
   * @suppress {underscore}
   */
-  this.matcher_ = new kt.OsmNamesMatcher(opt_url, this.parsedHash_);
+  this.matcher_ = new kt.OsmNamesMatcher(opt_url, this.parsedHash_,
+                                         this.input_);
 
   /**
   * An input handler that calls select on a row when it is selected.
@@ -202,22 +204,29 @@ kt.expose.symbol('kt.OsmNamesAutocomplete.prototype.registerCallback',
 
 /**
 * An array matcher that requests matches via JSONP.
-* @param {string=} opt_url The Uri of the web service.
-* @param {goog.Uri.QueryData=} opt_hashQueryData
+* @param {string|undefined} url The Uri of the web service.
+* @param {goog.Uri.QueryData|undefined} hashQueryData
+* @param {?Element} input
 * @constructor
 */
-kt.OsmNamesMatcher = function(opt_url, opt_hashQueryData) {
+kt.OsmNamesMatcher = function(url, hashQueryData, input) {
   /**
   * @type {string}
   * @private
   */
-  this.url_ = opt_url || 'https://osmnames.klokantech.com/';
+  this.url_ = url || 'https://osmnames.klokantech.com/';
 
   /**
    * @type {goog.Uri.QueryData}
    * @private
    */
-  this.hashQueryData_ = opt_hashQueryData || null;
+  this.hashQueryData_ = hashQueryData || null;
+
+  /**
+   * @type {?Element}
+   * @private
+   */
+  this.input_ = input;
 };
 
 
@@ -275,7 +284,15 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
            encodeURIComponent(qd.get(key).toString());
   });
 
+  if (this.input_) {
+    goog.dom.classlist.add(this.input_, 'working');
+  }
+
   this.request_ = goog.net.XhrIo.send(url, goog.bind(function(e) {
+    if (this.input_) {
+      goog.dom.classlist.remove(this.input_, 'working');
+    }
+
     var xhr = e.target;
     if (!xhr.isSuccess()) {
       return;
