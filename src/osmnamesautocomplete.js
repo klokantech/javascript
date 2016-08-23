@@ -244,6 +244,16 @@ kt.OsmNamesMatcher = function(url, hashQueryData, input) {
 kt.OsmNamesMatcher.prototype.requestMatchingRows =
     function(token, maxMatches, matchHandler) {
 
+  if (this.input_) {
+    goog.dom.classlist.remove(this.input_, 'working');
+  }
+
+  // Cancel old request when we have a new one
+  if (this.request_ && token != this.oldtoken_) {
+    this.request_.abort();
+    this.request_ = null;
+  }
+
   // Ignore token which is empty or just one letter
   if (!token || token.length == 1) {
     matchHandler(token, []);
@@ -253,12 +263,6 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
   // After direct request cancel autocomplete
   if (maxMatches == 1) this.oldtoken_ = token;
   if (maxMatches > 1 && token === this.oldtoken_) return;
-
-  // Cancel old request when we have a new one
-  if (this.request_) {
-    this.request_.abort();
-    this.request_ = null;
-  }
 
   var qd = this.hashQueryData_ ?
       this.hashQueryData_.clone() : new goog.Uri.QueryData();
