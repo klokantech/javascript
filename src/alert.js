@@ -40,11 +40,16 @@ goog.require('kt.expose');
  * @param {string=} opt_title
  * @param {string=} opt_ok Text for the OK button. Default is 'OK'.
  * @param {Function=} opt_callback Function to call after 'OK'.
+ * @param {boolean=} opt_html Text is html.
  */
-kt.alert = function(text, opt_title, opt_ok, opt_callback) {
+kt.alert = function(text, opt_title, opt_ok, opt_callback, opt_html) {
   var popup = new kt.Popup(opt_title, true);
 
-  popup.append(String(text));
+  if (opt_html) {
+    popup.setHTMLContent(String(text));
+  } else {
+    popup.append(String(text));
+  }
   var okBtn = goog.dom.createDom(goog.dom.TagName.DIV, 'btn', opt_ok || 'OK');
   popup.appendActions(okBtn);
 

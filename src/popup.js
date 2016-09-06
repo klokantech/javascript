@@ -109,6 +109,14 @@ kt.Popup.prototype.append = function(var_args) {
 
 
 /**
+ * @param {string} html
+ */
+kt.Popup.prototype.setHTMLContent = function(html) {
+  this.content_.innerHTML = html;
+};
+
+
+/**
  * @param {...goog.dom.Appendable} var_args The things to append to the actions.
  */
 kt.Popup.prototype.appendActions = function(var_args) {
