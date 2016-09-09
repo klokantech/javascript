@@ -39,12 +39,13 @@ goog.require('kt.expose');
 
 /**
 * @param {!Element|string} input Input element or text area.
+* @param {string=} opt_key
 * @param {boolean=} opt_hash Use location hash for permalink.
 * @param {string=} opt_url The Uri of the OSM Names service.
 * @constructor
 * @extends {goog.ui.ac.AutoComplete}
 */
-kt.OsmNamesAutocomplete = function(input, opt_hash, opt_url) {
+kt.OsmNamesAutocomplete = function(input, opt_key, opt_hash, opt_url) {
   /**
    * @type {goog.Uri.QueryData}
    * @private
@@ -82,7 +83,7 @@ kt.OsmNamesAutocomplete = function(input, opt_hash, opt_url) {
   * @protected
   * @suppress {underscore}
   */
-  this.matcher_ = new kt.OsmNamesMatcher(opt_url, this.parsedHash_,
+  this.matcher_ = new kt.OsmNamesMatcher(opt_url, opt_key, this.parsedHash_,
                                          this.input_);
 
   /**
@@ -205,16 +206,23 @@ kt.expose.symbol('kt.OsmNamesAutocomplete.prototype.registerCallback',
 /**
 * An array matcher that requests matches via JSONP.
 * @param {string|undefined} url The Uri of the web service.
+* @param {string|undefined} key
 * @param {goog.Uri.QueryData|undefined} hashQueryData
 * @param {?Element} input
 * @constructor
 */
-kt.OsmNamesMatcher = function(url, hashQueryData, input) {
+kt.OsmNamesMatcher = function(url, key, hashQueryData, input) {
   /**
   * @type {string}
   * @private
   */
   this.url_ = url || 'https://osmnames.klokantech.com/';
+
+  /**
+  * @type {string|undefined}
+  * @private
+  */
+  this.key_ = key;
 
   /**
    * @type {goog.Uri.QueryData}
@@ -266,27 +274,20 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
 
   var qd = this.hashQueryData_ ?
       this.hashQueryData_.clone() : new goog.Uri.QueryData();
-  qd.set('format', 'json');
-  qd.set('autocomplete', '1');
-  qd.set('count', maxMatches.toString());
   qd.set('q', token);
   if (this.hashQueryData_) {
     this.hashQueryData_.set('q', token);
     location.hash = this.hashQueryData_.toString();
   }
 
-  // Make sure the keys are properly sorted to optimize caching
-  var keys = qd.getKeys();
-  goog.array.sort(keys);
-
-  var url = this.url_ + '?';
-  goog.array.forEach(keys, function(key, i) {
-    if (i != 0) {
-      url += '&';
-    }
-    url += encodeURIComponent(key) + '=' +
-           encodeURIComponent(qd.get(key).toString());
-  });
+  var url = this.url_;
+  if (this.hashQueryData_.get('country_code')) {
+    url += this.hashQueryData_.get('country_code') + '/';
+  }
+  url += 'q/' + encodeURIComponent(token);
+  if (this.key_) {
+    url += '?key=' + this.key_;
+  }
 
   if (this.input_) {
     goog.dom.classlist.add(this.input_, 'working');
