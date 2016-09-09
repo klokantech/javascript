@@ -272,16 +272,14 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
   if (maxMatches == 1) this.oldtoken_ = token;
   if (maxMatches > 1 && token === this.oldtoken_) return;
 
-  var qd = this.hashQueryData_ ?
-      this.hashQueryData_.clone() : new goog.Uri.QueryData();
-  qd.set('q', token);
   if (this.hashQueryData_) {
     this.hashQueryData_.set('q', token);
     location.hash = this.hashQueryData_.toString();
   }
 
   var url = this.url_;
-  if (this.hashQueryData_.get('country_code')) {
+  if (this.hashQueryData_ &&
+      this.hashQueryData_.get('country_code')) {
     url += this.hashQueryData_.get('country_code') + '/';
   }
   url += 'q/' + encodeURIComponent(token);
