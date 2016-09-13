@@ -287,7 +287,7 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
       this.hashQueryData_.get('country_code')) {
     url += this.hashQueryData_.get('country_code') + '/';
   }
-  url += 'q/' + encodeURIComponent(token);
+  url += 'q/' + encodeURIComponent(token) + '.js';
   if (this.key_) {
     url += '?key=' + this.key_;
   }
