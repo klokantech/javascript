@@ -59,13 +59,15 @@ kt.OsmNamesAutocomplete = function(input, opt_key, opt_hash, opt_url) {
   // Create a custom renderer that renders rich rows returned from server.
   var customRenderer = {};
   customRenderer.renderRow = function(row, token, node) {
-    var name = row.data['name'],
-        suffix = row.data['name_suffix'],
-        type = row.data['type'];
-    var html = '<span class="name">' + name + '</span>';
+    var html = '<span class="name">';
+    var suffix = row.data['name_suffix'];
     if (suffix) {
-      html += '<span class="suffix">' + suffix + '</span>';
+      html += row.data['name'] + '</span><span class="suffix">' + suffix;
+    } else {
+      html += row.data['display_name'];
     }
+    html += '</span>';
+    var type = row.data['type'];
     if (type) {
       html += '<span class="type">' + type + '</span>';
     }
