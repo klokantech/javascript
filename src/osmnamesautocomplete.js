@@ -62,12 +62,12 @@ kt.OsmNamesAutocomplete = function(input, opt_key, opt_hash, opt_url) {
     var name = row.data['name'],
         suffix = row.data['name_suffix'],
         type = row.data['type'];
-    var html = '<span class="name">' + name + '<span>';
+    var html = '<span class="name">' + name + '</span>';
     if (suffix) {
-      html += '<span class="suffix">' + suffix + '<span>';
+      html += '<span class="suffix">' + suffix + '</span>';
     }
     if (type) {
-      html += '<span class="type">' + type + '<span>';
+      html += '<span class="type">' + type + '</span>';
     }
     node.innerHTML = html;
   };
