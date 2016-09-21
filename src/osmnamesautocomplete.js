@@ -59,8 +59,17 @@ kt.OsmNamesAutocomplete = function(input, opt_key, opt_hash, opt_url) {
   // Create a custom renderer that renders rich rows returned from server.
   var customRenderer = {};
   customRenderer.renderRow = function(row, token, node) {
-    node.innerHTML = row.data['formatted_name'] +
-        ' <i>(' + row.data['formatted_type'] + ')</i>';
+    var name = row.data['name'],
+        suffix = row.data['name_suffix'],
+        type = row.data['type'];
+    var html = '<span class="name">' + name + '<span>';
+    if (suffix) {
+      html += '<span class="suffix">' + suffix + '<span>';
+    }
+    if (type) {
+      html += '<span class="type">' + type + '<span>';
+    }
+    node.innerHTML = html;
   };
 
   /**
@@ -111,7 +120,7 @@ kt.OsmNamesAutocomplete = function(input, opt_key, opt_hash, opt_url) {
   this.enabled_ = false;
 
   this.listen(goog.ui.ac.AutoComplete.EventType.UPDATE, function(e) {
-    this.input_.value = e.row ? e.row['formatted_name'] : '';
+    this.input_.value = e.row ? e.row['name'] : '';
   }, false, this);
 
   this.enable(true);
@@ -308,6 +317,7 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
     var response = xhr.getResponseJson();
     var results = response['results'];
 
+    /*
     var addFormattedNameAndType = function(results) {
       var newResults = [];
       goog.array.forEach(results, function(item, i, arr) {
@@ -323,8 +333,9 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
       }, this);
       return newResults;
     };
+    */
 
-    matchHandler(token, addFormattedNameAndType(results));
+    matchHandler(token, results); //addFormattedNameAndType(results));
 
     this.request_ = null;
   }, this));
