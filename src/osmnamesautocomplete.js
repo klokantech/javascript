@@ -39,13 +39,13 @@ goog.require('kt.expose');
 
 /**
 * @param {!Element|string} input Input element or text area.
-* @param {string=} opt_key
-* @param {boolean=} opt_hash Use location hash for permalink.
 * @param {string=} opt_url The Uri of the OSM Names service.
+* @param {string=} opt_key Optional value for `?key=...`
+* @param {boolean=} opt_hash Use location hash for permalink.
 * @constructor
 * @extends {goog.ui.ac.AutoComplete}
 */
-kt.OsmNamesAutocomplete = function(input, opt_key, opt_hash, opt_url) {
+kt.OsmNamesAutocomplete = function(input, opt_url, opt_key, opt_hash) {
   /**
    * @type {goog.Uri.QueryData}
    * @private
@@ -232,7 +232,7 @@ kt.OsmNamesMatcher = function(url, key, hashQueryData, input) {
   * @type {string}
   * @private
   */
-  this.url_ = url || 'https://osmnames.klokantech.com/';
+  this.url_ = url || 'https://search.osmnames.org/';
 
   /**
   * @type {string|undefined}
