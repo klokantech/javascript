@@ -26,6 +26,7 @@
 goog.provide('kt.OsmNamesAutocomplete');
 goog.provide('kt.OsmNamesMatcher');
 
+goog.require('goog.Uri.QueryData');
 goog.require('goog.dom');
 goog.require('goog.dom.classlist');
 goog.require('goog.net.XhrIo');
