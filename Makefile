@@ -4,7 +4,7 @@ PLOVR=plovr.jar
 .PHONY: all plovr build serve lint webserver
 
 all: build
-build: build/kt.js build/index.html
+build: build/kt.js build/autocomplete.js build/index.html
 serve:
 	java -jar $(PLOVR) serve *.json
 build/%.js: %.json
