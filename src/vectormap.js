@@ -46,6 +46,7 @@ kt.VectorMap = function(styleJson, tileJson, mapOrElement, glElement) {
     target: mapOrElement,
     view: new ol.View(/** @type {olx.ViewOptions} */({
       center: [0, 0],
+      minZoom: 1,
       zoom: 2
     }))
   });
@@ -59,14 +60,16 @@ kt.VectorMap = function(styleJson, tileJson, mapOrElement, glElement) {
   this.glMap_ = null;
 
   var mapboxgl = goog.global['mapboxgl'];
-  if (mapboxgl && mapboxgl['supported']()) {
-    this.glMap_ = new mapboxgl['Map']({
+  if (mapboxgl && mapboxgl['Map'] && mapboxgl['supported']()) {
+    this.glMap_ = /** @type {!Object} */(new mapboxgl['Map']({
       'container': glElement,
       'style': styleJson,
       'center': [0, 0],
       'zoom': 1,
       'interactive': false
-    });
+    }));
+
+    this.glMap_['setMaxBounds']([[-Infinity, -90], [Infinity, 90]]);
 
     var view = this.olMap_.getView();
 
