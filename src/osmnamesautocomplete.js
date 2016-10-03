@@ -157,7 +157,7 @@ kt.OsmNamesAutocomplete.prototype.enable = function(enable) {
 
 
 /**
- * @param {function(!Array.<number>)} callback
+ * @param {function(!Object<string, *>)} callback
  * @param {boolean=} opt_forHilite
  */
 kt.OsmNamesAutocomplete.prototype.registerCallback =
