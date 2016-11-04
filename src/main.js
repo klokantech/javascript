@@ -28,6 +28,7 @@ goog.provide('kt.decorate');
 goog.require('goog.array');
 goog.require('goog.dom');
 
+goog.require('kt.CustomMapsControl');
 goog.require('kt.DateInput');
 goog.require('kt.MultiComplete');
 goog.require('kt.Nominatim');
