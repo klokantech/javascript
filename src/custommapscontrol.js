@@ -32,6 +32,7 @@ goog.require('goog.events');
 goog.require('goog.events.EventType');
 goog.require('goog.net.cookies');
 goog.require('goog.string');
+goog.require('kt.VectorMap');
 goog.require('kt.listprompt');
 
 /*
@@ -53,6 +54,8 @@ Needed requires if compiling together with OL3:
  * @param {!ol.Map} map
  * @param {{
  *    root: (Element|string|undefined),
+ *    thumbs: (Element|string|undefined),
+ *    vectorMap: (Element|string|undefined),
  *    input: (Element|string|undefined),
  *    type: (Element|string|undefined),
  *    addBtn: (Element|string|undefined),
@@ -103,6 +106,12 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
   this.gmapWrap_ = null;
 
   /**
+   * @type {?kt.VectorMap}
+   * @private
+   */
+  this.vectorMap_ = null;
+
+  /**
    * @type {!Array.<goog.events.Key>}
    * @private
    */
@@ -114,6 +123,20 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
    */
   this.root_ = /** @type {!Element} */
       (goog.dom.getElement(elements.root || 'customMaps'));
+
+  /**
+   * @type {!Element}
+   * @private
+   */
+  this.thumbs_ = /** @type {!Element} */
+      (goog.dom.getElement(elements.thumbs || 'customMaps-thumbs'));
+
+  /**
+   * @type {?Element}
+   * @private
+   */
+  this.vectorMapEl_ =
+      goog.dom.getElement(elements.vectorMap || 'customMaps-vector');
 
   goog.events.listen(this.root_, goog.events.EventType.CLICK, function(e) {
     if (e.target == this.root_) {
@@ -208,6 +231,9 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
     goog.dom.removeChildren(this.mapElement_);
     this.map_.setTarget(this.mapElement_);
     delete this.gmapWrap_;
+  } else if (this.vectorMap_) {
+    this.vectorMap_.destroy();
+    delete this.gmapWrap_;
   } else {
     newLayers.shift();
   }
@@ -249,6 +275,12 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
       google.maps.event.trigger(gmap, 'resize');
       this.map_.updateSize();
     }, this));
+  } else if (layer.type == 'vector' &&
+             this.vectorMapEl_ && layer.url.indexOf('|') > 0) {
+    var parts = layer.url.split('|');
+    var url_ = parts[1];
+    this.vectorMap_ = new kt.VectorMap(
+        parts[0], parts[1], this.map_, this.vectorMapEl_);
   } else {
 
     var bnds = layer.bounds;
@@ -356,11 +388,19 @@ kt.CustomMapsControl.prototype.add_ =
           'size=512x512&zoom=1&maptype=' + variant;
       layer.previewUrl += '&key=' + key;
     }
-  } else if (type == 'tilejson') {
+  } else if (type == 'tilejson' || type == 'vector') {
+    var url_ = layer.url;
+    if (type == 'vector') {
+      var parts = layer.url.split('|');
+      if (!parts.length == 2) {
+        return;
+      }
+      url_ = parts[1];
+    }
     layer.source = new ol.source.TileJSON({
-                     url: layer.url,
+                     url: url_,
                      crossOrigin: '',
-                     jsonp: goog.string.endsWith(url, '.jsonp')
+                     jsonp: /\.jsonp(\?.*)?$/.test(url_)
                    });
 
     layer.source.on('change', function(e) {
@@ -542,9 +582,7 @@ kt.CustomMapsControl.prototype.remove_ = function(url) {
  * @private
  */
 kt.CustomMapsControl.prototype.render_ = function() {
-  var thumbsEl = goog.dom.getElement('customMaps-thumbs');
-
-  goog.dom.removeChildren(thumbsEl);
+  goog.dom.removeChildren(this.thumbs_);
 
   goog.array.forEach(this.layers_, function(layer) {
     var remover = layer.isDefault ? undefined :
@@ -563,6 +601,8 @@ kt.CustomMapsControl.prototype.render_ = function() {
       goog.dom.classlist.add(thumb, 'active');
     }
 
+    goog.dom.classlist.add(thumb, 'type-' + layer.type);
+
     preview.src = layer.previewUrl || '';
 
     if (remover) {
@@ -578,7 +618,7 @@ kt.CustomMapsControl.prototype.render_ = function() {
       this.show(false);
     }, false, this);
 
-    goog.dom.appendChild(thumbsEl, thumb);
+    goog.dom.appendChild(this.thumbs_, thumb);
   }, this);
 };
 
