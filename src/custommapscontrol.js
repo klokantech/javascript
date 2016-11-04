@@ -153,6 +153,9 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
       var value = inputEl.value.toString();
       if (/\.json[p]?(\?.*)?$/.test(value)) {
         typeEl.value = 'tilejson';
+      } else if (value.indexOf('{z}') > 0 && value.indexOf('{x}') > 0 &&
+                 (value.indexOf('{y}') > 0 || value.indexOf('{-y}') > 0)) {
+        typeEl.value = 'zxy';
       } else if (value.toLowerCase().indexOf('wms') !== 0) {
         typeEl.value = 'wms';
       }
@@ -371,6 +374,18 @@ kt.CustomMapsControl.prototype.add_ =
     layer.name = 'Open Street Map';
     layer.source = new ol.source.OSM();
     this.updatePreviewUrl_(layer);
+  } else if (type == 'zxy') {
+    if (layer.url.indexOf('{z}') > 0 && layer.url.indexOf('{x}') > 0 &&
+        (layer.url.indexOf('{y}') > 0 || layer.url.indexOf('{-y}') > 0)) {
+      var templateStart = layer.url.split('{z}')[0];
+      layer.name = 'Open Street Map';
+      layer.source = new ol.source.XYZ({
+        url: layer.url
+      });
+      this.updatePreviewUrl_(layer);
+    } else {
+      return;
+    }
   } else if (type == 'gmaps') {
     if (!goog.global['google'] || !goog.global['google']['maps']) {
       return;
