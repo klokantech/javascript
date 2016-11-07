@@ -25,6 +25,7 @@
  */
 goog.provide('kt.CustomMapsControl');
 
+goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.classlist');
@@ -45,6 +46,7 @@ Needed requires if compiling together with OL3:
 //goog.require('ol.source.OSM');
 //goog.require('ol.source.TileJSON');
 //goog.require('ol.source.TileWMS');
+//goog.require('ol.source.XYZ');
 */
 
 
@@ -85,7 +87,7 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
    * @private
    */
   this.controlElement_ =
-      goog.dom.getElement(elements.input || 'customMaps-control');
+      goog.dom.getElement(elements.control || 'customMaps-control');
 
   if (this.controlElement_) {
     goog.events.listen(this.controlElement_, goog.events.EventType.CLICK,
@@ -112,7 +114,7 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
   this.vectorMap_ = null;
 
   /**
-   * @type {!Array.<Object>}
+   * @type {!Array.<ol.events.Key|Array.<ol.events.Key>>}
    * @private
    */
   this.gmapWrapListenKeys_ = [];
@@ -433,7 +435,8 @@ kt.CustomMapsControl.prototype.add_ =
 
     layer.source.on('change', function(e) {
       if (layer.source.getState() == 'ready') {
-        var tileJSON = layer.source.getTileJSON && layer.source.getTileJSON();
+        var tileJSON =
+            /** @type {ol.source.TileJSON} */(layer.source).getTileJSON();
         if (tileJSON) {
           var bounds = tileJSON['bounds'];
           if (bounds) {
