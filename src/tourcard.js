@@ -46,11 +46,13 @@ goog.require('goog.events.EventTarget');
  * @param {!kt.TourCard.Direction=} opt_anchorDirY
  *                                Defaults to TOP (or `direction` if == BOTTOM)
  * @param {number=} opt_anchorPadding Distance from the anchor point in pixels.
+ * @param {string=} opt_className Custom class name to append to the card.
  * @constructor
  * @extends {goog.events.EventTarget}
  */
 kt.TourCard = function(title, content, anchor, direction, opt_highlight,
-                       opt_anchorDirX, opt_anchorDirY, opt_anchorPadding) {
+                       opt_anchorDirX, opt_anchorDirY, opt_anchorPadding,
+                       opt_className) {
   goog.base(this);
 
   /**
@@ -108,6 +110,12 @@ kt.TourCard = function(title, content, anchor, direction, opt_highlight,
   this.highlight_ = opt_highlight || null;
 
   /**
+   * @type {?string}
+   * @private
+   */
+  this.className_ = opt_className || null;
+
+  /**
    * @type {?Element}
    * @private
    */
@@ -158,6 +166,9 @@ kt.TourCard.prototype.prepare = function(opt_skipperCount, opt_skipperIndex,
   goog.dom.classlist.add(this.element_, 'direction-' + this.direction_);
   goog.dom.classlist.add(this.element_, 'anchor-' + this.anchorDirX_);
   goog.dom.classlist.add(this.element_, 'anchor-' + this.anchorDirY_);
+  if (this.className_) {
+    goog.dom.classlist.add(this.element_, this.className_);
+  }
 
   var titleEl = goog.dom.createDom(goog.dom.TagName.H3, 'tour-card-title');
   titleEl.innerHTML = this.title_;
@@ -179,7 +190,7 @@ kt.TourCard.prototype.prepare = function(opt_skipperCount, opt_skipperIndex,
     nextBtn = goog.dom.createDom(goog.dom.TagName.A, {
       'href': '#',
       'class': 'tour-card-next'
-    }, '>');
+    });
     goog.events.listen(nextBtn, goog.events.EventType.CLICK, function(e) {
       this.dispatchEvent(kt.TourCard.EventType.NEXT);
       e.preventDefault();

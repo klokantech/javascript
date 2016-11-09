@@ -268,3 +268,44 @@ kt.Tour.prototype.handleResize = function() {
     }
   }
 };
+
+
+/**
+ * @return {!kt.Tour}
+ */
+kt.Tour.decorate = function() {
+  var tour = new kt.Tour();
+
+  var cardElements = document.querySelectorAll('.tour-card-template');
+  goog.array.forEach(cardElements, function(cardElement) {
+    var title = cardElement.getAttribute('data-title') || '';
+    var content = cardElement;
+    var anchor = cardElement.getAttribute('data-anchor');
+    if (anchor && anchor.indexOf(',') >= 0) {
+      var p = anchor.split(',');
+      anchor = new goog.math.Coordinate(
+          parseFloat(p[0]), parseFloat(p[1]));
+    } else if (anchor) {
+      anchor = goog.dom.getElement(anchor);
+    } else {
+      anchor = null;
+    }
+    var highlight = cardElement.getAttribute('data-highlight');
+    if (highlight && highlight.indexOf(',') >= 0) {
+      var p = highlight.split(',');
+      highlight = new goog.math.Box(
+          parseFloat(p[1]), parseFloat(p[2]),
+          parseFloat(p[3]), parseFloat(p[0]));
+    } else {
+      highlight = undefined;
+    }
+    var direction = /** @type {kt.TourCard.Direction} */
+        (cardElement.getAttribute('data-direction') || 'none');
+    var className = cardElement.getAttribute('data-classname');
+    var card = new kt.TourCard(title, content, anchor, direction, highlight,
+        undefined, undefined, undefined, className);
+    tour.addCard(card);
+  });
+
+  return tour;
+};
