@@ -31,8 +31,10 @@ goog.require('goog.dom');
 goog.require('goog.dom.classlist');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
+goog.require('goog.net.XhrIo');
 goog.require('goog.net.cookies');
 goog.require('goog.string');
+goog.require('goog.style');
 goog.require('kt.VectorMap');
 goog.require('kt.listprompt');
 
