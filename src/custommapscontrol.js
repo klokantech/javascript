@@ -213,6 +213,12 @@ kt.CustomMapsControl.COOKIE_DOMAIN = '';
 
 
 /**
+ * @define {boolean} Whether ol.source.TileJSON supports autoscaling.
+ */
+kt.CustomMapsControl.TILEJSON_AUTOSCALE = false;
+
+
+/**
  * @typedef {{
  *            bounds: ol.Extent,
  *            color: string,
@@ -421,10 +427,13 @@ kt.CustomMapsControl.prototype.add_ =
       layer.previewUrl += '&key=' + key;
     }
   } else if (type == 'tilejson' || type == 'vector') {
-    var url_ = layer.url;
+    var parts = layer.url.split('|');
+    var url_ = parts[0];
+    var autoscale = kt.CustomMapsControl.TILEJSON_AUTOSCALE &&
+                    window.devicePixelRatio > 1 &&
+                    goog.array.contains(parts, 'autoscale');
     if (type == 'vector') {
-      var parts = layer.url.split('|');
-      if (!parts.length == 2) {
+      if (parts.length != 2) {
         return;
       }
       url_ = parts[1];
@@ -432,11 +441,13 @@ kt.CustomMapsControl.prototype.add_ =
     layer.source = new ol.source.TileJSON({
                      url: url_,
                      crossOrigin: '',
-                     jsonp: /\.jsonp(\?.*)?$/.test(url_)
+                     jsonp: /\.jsonp(\?.*)?$/.test(url_),
+                     tilePixelRatio: autoscale ? 2 : 1
                    });
 
-    layer.source.on('change', function(e) {
+    var listenKey = layer.source.on('change', function(e) {
       if (layer.source.getState() == 'ready') {
+        layer.source.unByKey(listenKey);
         var tileJSON =
             /** @type {ol.source.TileJSON} */(layer.source).getTileJSON();
         if (tileJSON) {
@@ -451,6 +462,19 @@ kt.CustomMapsControl.prototype.add_ =
           var name = tileJSON['name'];
           if (name) {
             layer.name = name;
+          }
+          if (autoscale) {
+            var originalFunction = layer.source.getTileUrlFunction();
+            layer.source.setTileUrlFunction(
+                function(tilecoord, pixelRatio, proj) {
+                  var tileUrl = originalFunction(tilecoord, pixelRatio, proj);
+                  if (tileUrl && (tileUrl.indexOf('@2x') == -1)) {
+                    tileUrl = tileUrl
+                    .replace('.png', '@2x.png')
+                    .replace('.jpg', '@2x.jpg');
+                  }
+                  return tileUrl;
+                });
           }
         }
 
