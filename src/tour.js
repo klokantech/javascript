@@ -102,11 +102,13 @@ kt.Tour = function(opt_container, opt_highlight) {
 
     if (e.keyCode == goog.events.KeyCodes.ESC) {
       this.end();
+      e.preventDefault();
     } else if (e.keyCode == goog.events.KeyCodes.LEFT ||
                e.keyCode == goog.events.KeyCodes.UP) {
       if (this.activeCard_ > 0) {
         this.showCard(this.activeCard_ - 1);
       }
+      e.preventDefault();
     } else if (e.keyCode == goog.events.KeyCodes.RIGHT ||
                e.keyCode == goog.events.KeyCodes.DOWN ||
                e.keyCode == goog.events.KeyCodes.ENTER ||
@@ -116,8 +118,8 @@ kt.Tour = function(opt_container, opt_highlight) {
       } else {
         this.showCard(this.activeCard_ + 1);
       }
+      e.preventDefault();
     }
-    e.preventDefault();
   }, false, this);
 
   /**
