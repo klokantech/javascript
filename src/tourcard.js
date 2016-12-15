@@ -145,7 +145,7 @@ kt.TourCard.DEFAULT_ANCHOR_PADDING = 15;
 /**
  * @define {number} Fade animation time in ms.
  */
-kt.TourCard.FADE_ANIM_TIME = 1000;
+kt.TourCard.FADE_ANIM_TIME = 500;
 
 
 /**
@@ -308,9 +308,9 @@ kt.TourCard.prototype.getHighlight = function() {
  * @param {?Element} container
  */
 kt.TourCard.prototype.show = function(container) {
-  goog.Timer.clear(this.fadeAnimTimer_); // cancel old animation if any
-
   if (!this.element_) return;
+
+  goog.Timer.clear(this.fadeAnimTimer_); // cancel old animation if any
 
   this.element_.style.opacity = 0;
   if (this.element_.parentNode && !container) {
