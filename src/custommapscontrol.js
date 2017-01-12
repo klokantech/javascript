@@ -429,7 +429,8 @@ kt.CustomMapsControl.prototype.add_ =
   } else if (type == 'tilejson' || type == 'vector') {
     var parts = layer.url.split('|');
     var url_ = parts[0];
-    var autoscale = kt.CustomMapsControl.TILEJSON_AUTOSCALE &&
+    var autoscale = false &&
+                    kt.CustomMapsControl.TILEJSON_AUTOSCALE &&
                     window.devicePixelRatio > 1 &&
                     goog.array.contains(parts, 'autoscale');
     if (type == 'vector') {
@@ -441,8 +442,9 @@ kt.CustomMapsControl.prototype.add_ =
     layer.source = new ol.source.TileJSON({
                      url: url_,
                      crossOrigin: '',
-                     jsonp: /\.jsonp(\?.*)?$/.test(url_),
-                     tilePixelRatio: autoscale ? 2 : 1
+                     jsonp: /\.jsonp(\?.*)?$/.test(url_)
+                     // tilePixelRatio: autoscale ? 2 : 1
+                     // TODO: this option does not exist
                    });
 
     var listenKey = layer.source.on('change', function(e) {
