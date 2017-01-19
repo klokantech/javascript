@@ -117,7 +117,10 @@ kt.VectorMap.prototype.destroy = function() {
     }
     this.glMap_ = null;
   } else {
-    this.olMap_.getLayers().removeAt(0);
+    var layers = this.olMap_.getLayers();
+    if (layers && layers.getLength() > 0) {
+      layers.removeAt(0);
+    }
   }
   if (this.olMapPrecomposeListenKey_) {
     this.olMap_.unByKey(this.olMapPrecomposeListenKey_);
