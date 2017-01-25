@@ -27,6 +27,7 @@ goog.provide('kt.Tour');
 
 goog.require('goog.array');
 goog.require('goog.dom');
+goog.require('goog.dom.ViewportSizeMonitor');
 goog.require('goog.events');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.style');
@@ -273,12 +274,18 @@ kt.Tour.prototype.handleResize = function() {
 
 
 /**
+ * @param {string=} opt_group
  * @return {!kt.Tour}
  */
-kt.Tour.decorate = function() {
+kt.Tour.decorate = function(opt_group) {
   var tour = new kt.Tour();
 
-  var cardElements = document.querySelectorAll('.tour-card-template');
+  var selector = '.tour-card-template';
+  if (opt_group) {
+    selector += '[data-group=' + opt_group + ']';
+  }
+
+  var cardElements = document.querySelectorAll(selector);
   goog.array.forEach(cardElements, function(cardElement) {
     var title = cardElement.getAttribute('data-title') || '';
     var content = cardElement;

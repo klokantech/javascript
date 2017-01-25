@@ -326,6 +326,13 @@ kt.TourCard.prototype.show = function(container) {
   this.container_ = container;
 
   if (this.container_) {
+    // lazy load images
+    var lazyImages = this.element_.querySelectorAll('img[data-src]');
+    goog.array.forEach(lazyImages, function(image) {
+      image.src = '';
+      image.src = image.getAttribute('data-src');
+    });
+
     goog.dom.appendChild(this.container_, this.element_);
     this.updatePosition();
 
