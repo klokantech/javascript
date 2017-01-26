@@ -27,10 +27,14 @@ goog.provide('kt.TourCard');
 goog.provide('kt.TourCard.Direction');
 goog.provide('kt.TourCard.EventType');
 
+goog.require('goog.Timer');
 goog.require('goog.dom');
 goog.require('goog.dom.classlist');
 goog.require('goog.events');
 goog.require('goog.events.EventTarget');
+goog.require('goog.math.Box');
+goog.require('goog.math.Coordinate');
+goog.require('goog.style');
 
 
 

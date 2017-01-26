@@ -28,6 +28,7 @@ goog.provide('kt.Tour');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.ViewportSizeMonitor');
+goog.require('goog.dom.classlist');
 goog.require('goog.events');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.style');
