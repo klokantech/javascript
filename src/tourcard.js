@@ -195,6 +195,15 @@ kt.TourCard.prototype.prepare = function(opt_skipperCount, opt_skipperIndex,
       this.dispatchEvent(kt.TourCard.EventType.NEXT);
       e.preventDefault();
     }, false, this);
+  } else {
+    nextBtn = goog.dom.createDom(goog.dom.TagName.A, {
+      'href': '#',
+      'class': 'tour-card-done'
+    });
+    goog.events.listen(nextBtn, goog.events.EventType.CLICK, function(e) {
+      this.dispatchEvent(kt.TourCard.EventType.CLOSE);
+      e.preventDefault();
+    }, false, this);
   }
 
   var skipperBox = goog.dom.createDom(goog.dom.TagName.DIV,
