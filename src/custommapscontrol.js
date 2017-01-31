@@ -45,6 +45,7 @@ Needed requires if compiling together with OL3:
 //goog.require('ol.format.WMSCapabilities');
 //goog.require('ol.layer.Tile');
 //goog.require('ol.proj');
+//goog.require('ol.source.BingMaps');
 //goog.require('ol.source.OSM');
 //goog.require('ol.source.TileJSON');
 //goog.require('ol.source.TileWMS');
@@ -213,6 +214,12 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
  * @define {string} Google maps key to use.
  */
 kt.CustomMapsControl.GOOGLEMAPS_KEY = '';
+
+
+/**
+ * @define {string} Bing key to use.
+ */
+kt.CustomMapsControl.BING_KEY = '';
 
 
 /**
@@ -411,7 +418,7 @@ kt.CustomMapsControl.prototype.add_ =
     if (layer.url.indexOf('{z}') > 0 && layer.url.indexOf('{x}') > 0 &&
         (layer.url.indexOf('{y}') > 0 || layer.url.indexOf('{-y}') > 0)) {
       var templateStart = layer.url.split('{z}')[0];
-      layer.name = 'Open Street Map';
+      layer.name = 'Custom XYZ';
       layer.source = new ol.source.XYZ({
         url: layer.url
       });
@@ -419,6 +426,31 @@ kt.CustomMapsControl.prototype.add_ =
     } else {
       return;
     }
+  } else if (type == 'bing') {
+    var variant = layer.url;
+    var name = variant;
+    layer.name = 'Bing - ' + name;
+    layer.source = new ol.source.BingMaps({
+      key: goog.global['BING_KEY'] || kt.CustomMapsControl.BING_KEY,
+      imagerySet: variant,
+      // use maxZoom 19 to see stretched tiles instead of the BingMaps
+      // "no photos at this zoom level" tiles
+      maxZoom: 19
+    });
+
+    var listenKey = layer.source.on('change', function(e) {
+      if (layer.source.getState() == 'ready') {
+        layer.source.unByKey(listenKey);
+
+        this.updatePreviewUrl_(layer);
+
+        if (opt_rerenderWhenLoaded) {
+          this.render_();
+        }
+      }
+    }, this);
+
+    this.updatePreviewUrl_(layer);
   } else if (type == 'gmaps') {
     if (!goog.global['google'] || !goog.global['google']['maps']) {
       return;
@@ -615,8 +647,7 @@ kt.CustomMapsControl.prototype.updatePreviewUrl_ = function(layer) {
         if (tilegrid) {
           var tilecoord = tilegrid.getTileCoordForCoordAndZ(
                               center_, tilegrid.getMinZoom() || 0);
-          layer.previewUrl = tileurlfunction(
-              tilecoord, 1, layer.source.getProjection()) || null;
+          layer.previewUrl = tileurlfunction(tilecoord, 1, projection) || null;
         }
       }
     }
