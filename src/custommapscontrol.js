@@ -64,12 +64,25 @@ Needed requires if compiling together with OL3:
  *    type: (Element|string|undefined),
  *    addBtn: (Element|string|undefined),
  *    control: (Element|string|undefined)
- * }=} opt_elements
+ * }|string=} opt_elements
  * @param {!Array.<string>=} opt_defaults
  * @constructor
  */
 kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
   var elements = opt_elements || {};
+
+  var prefix = '';
+  if (goog.isString(elements)) {
+    prefix = elements;
+    elements = {};
+  }
+  elements.control = elements.control || (prefix + 'customMaps-control');
+  elements.root = elements.root || (prefix + 'customMaps');
+  elements.thumbs = elements.thumbs || (prefix + 'customMaps-thumbs');
+  elements.vectorMap = elements.vectorMap || (prefix + 'customMaps-vector');
+  elements.input = elements.input || (prefix + 'customMaps-input');
+  elements.type = elements.type || (prefix + 'customMaps-type');
+  elements.addBtn = elements.addBtn || (prefix + 'customMaps-addbtn');
 
   /**
    * @type {!ol.Map}
@@ -88,8 +101,7 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
    * @type {?Element}
    * @private
    */
-  this.controlElement_ =
-      goog.dom.getElement(elements.control || 'customMaps-control');
+  this.controlElement_ = goog.dom.getElement(elements.control);
 
   if (this.controlElement_) {
     goog.events.listen(this.controlElement_, goog.events.EventType.CLICK,
@@ -125,22 +137,19 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
    * @type {!Element}
    * @private
    */
-  this.root_ = /** @type {!Element} */
-      (goog.dom.getElement(elements.root || 'customMaps'));
+  this.root_ = /** @type {!Element} */(goog.dom.getElement(elements.root));
 
   /**
    * @type {!Element}
    * @private
    */
-  this.thumbs_ = /** @type {!Element} */
-      (goog.dom.getElement(elements.thumbs || 'customMaps-thumbs'));
+  this.thumbs_ = /** @type {!Element} */(goog.dom.getElement(elements.thumbs));
 
   /**
    * @type {?Element}
    * @private
    */
-  this.vectorMapEl_ =
-      goog.dom.getElement(elements.vectorMap || 'customMaps-vector');
+  this.vectorMapEl_ = goog.dom.getElement(elements.vectorMap);
 
   goog.events.listen(this.root_, goog.events.EventType.CLICK, function(e) {
     if (e.target == this.root_) {
@@ -149,9 +158,9 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
     }
   }, false, this);
 
-  var inputEl = goog.dom.getElement(elements.input || 'customMaps-input');
-  var typeEl = goog.dom.getElement(elements.type || 'customMaps-type');
-  var addBtn = goog.dom.getElement(elements.addBtn || 'customMaps-addbtn');
+  var inputEl = goog.dom.getElement(elements.input);
+  var typeEl = goog.dom.getElement(elements.type);
+  var addBtn = goog.dom.getElement(elements.addBtn);
   if (inputEl && typeEl && addBtn) {
     goog.events.listen(inputEl, goog.events.EventType.INPUT, function(e) {
       var value = inputEl.value.toString();
@@ -240,7 +249,7 @@ kt.CustomMapsControl.Layer_;
 kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
   this.activeLayer_ = layer;
 
-  var newLayers = this.map_.getLayers().getArray();
+  var layers = this.map_.getLayers();
 
   if (this.gmapWrap_) {
     // clear old google map and restore everything
@@ -256,7 +265,9 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
     this.vectorMap_.destroy();
     delete this.vectorMap_;
   } else {
-    newLayers.shift();
+    if (layers.getLength() > 0) {
+      layers.removeAt(0);
+    }
   }
   this.mapElement_.style.backgroundColor = '';
 
@@ -322,13 +333,12 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
         }
       }
 
-      newLayers.unshift(new ol.layer.Tile(
+      layers.insertAt(0, new ol.layer.Tile(
           /** @type {olx.layer.TileOptions} */({source: layer.source})));
     }
     this.mapElement_.style.backgroundColor = layer.color;
   }
 
-  this.map_.getLayerGroup().setLayers(new ol.Collection(newLayers));
   this.map_.updateSize();
 };
 
