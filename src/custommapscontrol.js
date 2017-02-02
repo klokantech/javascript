@@ -333,9 +333,17 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
         if (view && size) {
           var trans = ol.proj.getTransform('EPSG:4326', view.getProjection());
           var ext = ol.extent.applyTransform(bnds, trans);
-          if (!ol.extent.containsCoordinate(ext, view.getCenter() || null) ||
-              ol.extent.containsExtent(view.calculateExtent(size), ext)) {
-            view.fit(ext, size); // only zoom in
+          var center = view.getCenter();
+          if (center) {
+            center = ol.proj.transform(
+                center, view.getProjection(), 'EPSG:4326');
+            center[0] = goog.math.modulo(center[0] + 180, 360) - 180;
+            center = ol.proj.transform(
+                center, 'EPSG:4326', view.getProjection());
+            if (!ol.extent.containsCoordinate(ext, center) ||
+                ol.extent.containsExtent(view.calculateExtent(size), ext)) {
+              view.fit(ext, size); // only zoom in
+            }
           }
         }
       }
