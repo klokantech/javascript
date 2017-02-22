@@ -292,6 +292,7 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
         disableDoubleClickZoom: true,
         scrollwheel: false,
         streetViewControl: false,
+        tilt: 0,
         mapTypeId: layer.url
       });
       this.gmapWrap_ = gmap;
