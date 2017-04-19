@@ -71,6 +71,12 @@ kt.CoordinateInput = function(input) {
 
 
 /**
+ * @define {boolean} Use full formats (e.g. 0°0'0" instead of just 0°).
+ */
+kt.CoordinateInput.FULL_FORMAT = true;
+
+
+/**
  * @const {RegExp}
  */
 kt.CoordinateInput.DEGREESTRING_REGEXP = new RegExp(
@@ -171,12 +177,12 @@ kt.CoordinateInput.convertNumberToDegreeString = function(value, opt_format) {
   } else {
     var deg = Math.floor(value);
     value = (value % 1) * 60;
-    if (value > 0) {
+    if (kt.CoordinateInput.FULL_FORMAT || value > 0) {
       var min;
       if (format == kt.CoordinateInput.DegreeFormat.DMS) {
         min = Math.floor(value);
         value = (value % 1) * 60;
-        if (value > 0) {
+        if (kt.CoordinateInput.FULL_FORMAT || value > 0) {
           var sec = Math.round(value * 1e3) / 1e3;
           // The rounding on the lowest level can overflow to the higher order.
           if (sec >= 60) {
@@ -192,10 +198,9 @@ kt.CoordinateInput.convertNumberToDegreeString = function(value, opt_format) {
         deg++;
         min = 0;
       }
-      minStr = min.toFixed(
-                   format == kt.CoordinateInput.DegreeFormat.DMS ? 0 : 5);
-      degStr = deg.toFixed(0);
+      minStr = min.toFixed(5).replace(/\.*0+$/, '');
     }
+    degStr = deg.toFixed(0);
 
   }
 
