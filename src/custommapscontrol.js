@@ -117,6 +117,12 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
       .split(';');
 
   /**
+   * @type {boolean}
+   * @private
+   */
+  this.gmapInstalled_ = !!(goog.global['google'] && google.maps);
+
+  /**
    * @type {?google.maps.Map}
    * @private
    */
@@ -293,7 +299,7 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
         scrollwheel: false,
         streetViewControl: false,
         tilt: 0,
-        mapTypeId: layer.url
+        mapTypeId: layer.url.split('|')[0]
       });
       this.gmapWrap_ = gmap;
       gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(olTarget);
@@ -436,11 +442,12 @@ kt.CustomMapsControl.prototype.add_ =
       return;
     }
   } else if (type == 'bing') {
-    var variant = layer.url;
+    var variant = layer.url.split('|')[0];
+    var key = layer.url.split('|').slice(1).join('|');
     var name = variant;
     layer.name = 'Bing - ' + name;
     layer.source = new ol.source.BingMaps({
-      key: goog.global['BING_KEY'] || kt.CustomMapsControl.BING_KEY,
+      key: key || goog.global['BING_KEY'] || kt.CustomMapsControl.BING_KEY,
       imagerySet: variant,
       // use maxZoom 19 to see stretched tiles instead of the BingMaps
       // "no photos at this zoom level" tiles
@@ -461,17 +468,28 @@ kt.CustomMapsControl.prototype.add_ =
 
     this.updatePreviewUrl_(layer);
   } else if (type == 'gmaps') {
-    if (!goog.global['google'] || !goog.global['google']['maps']) {
-      return;
-    }
-    var variant = layer.url;
+    var variant = layer.url.split('|')[0];
+    var key = layer.url.split('|').slice(1).join('|');
     var name = goog.string.capitalize(variant);
     if (variant == 'hybrid') {
       name = 'Satellite';
     }
     layer.name = 'Google Maps - ' + name;
-    var key = goog.global['GOOGLEMAPS_KEY'] ||
-              kt.CustomMapsControl.GOOGLEMAPS_KEY;
+    if (!this.gmapInstalled_) {
+      if (key) {
+        var uv = document.createElement('script');
+        uv.type = 'text/javascript';
+        uv.src = 'https://maps.google.com/maps/api/js?v=3.27&key=' + key;
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(uv, s);
+        this.gmapInstalled_ = true;
+      } else {
+        return;
+      }
+    }
+    key = key ||
+          goog.global['GOOGLEMAPS_KEY'] ||
+          kt.CustomMapsControl.GOOGLEMAPS_KEY;
     if (key) {
       layer.previewUrl = 'https://maps.googleapis.com/maps/api/staticmap?' +
           'size=512x512&zoom=1&maptype=' + variant;
