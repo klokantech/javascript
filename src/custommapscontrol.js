@@ -559,13 +559,14 @@ kt.CustomMapsControl.prototype.add_ =
   } else if (type == 'wms') {
     var uri = new goog.Uri(layer.url);
 
-    uri.setQuery('service=WMS&request=GetCapabilities');
+    uri.setQuery('service=WMS&request=GetCapabilities&version=1.3.0');
 
     goog.net.XhrIo.send(uri.toString(), goog.bind(function(e) {
       var parser = new ol.format.WMSCapabilities();
       var parsed = parser.read(e.target.getResponse());
 
       var findUsableCRSIndex = function(CRSs) {
+        if (!CRSs) return -1;
         var findSingle = function(code) {
           return goog.array.findIndex(CRSs, function(crs) {
             var proj_ = ol.proj.get(crs) || ol.proj.get(crs.toUpperCase());
@@ -637,9 +638,13 @@ kt.CustomMapsControl.prototype.add_ =
         }
       });
 
-      kt.listprompt('Select a layer to use:', optionList, function(id) {
-        loadLayer(layers[id]);
-      });
+      if (optionList.length > 0) {
+        kt.listprompt('Select a layer to use:', optionList, function(id) {
+          loadLayer(layers[id]);
+        });
+      } else {
+        kt.alert('No usable layers found!');
+      }
 
     }, this));
 
