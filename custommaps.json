@@ -1,0 +1,8 @@
+{
+  "id": "custommaps",
+  "inherits": "kt.json",
+
+  "output-wrapper": "// Part of open-source library at https://github.com/klokantech/javascript\n// compiled from https://github.com/klokantech/javascript/blob/master/src/custommapscontrol.js\n(function(){%output%})();",
+
+  "inputs": ["src/custommapscontrol.js"]
+}
