@@ -36,6 +36,7 @@ goog.require('goog.net.cookies');
 goog.require('goog.string');
 goog.require('goog.style');
 goog.require('kt.VectorMap');
+goog.require('kt.alert');
 goog.require('kt.listprompt');
 
 /*
@@ -649,6 +650,12 @@ kt.CustomMapsControl.prototype.add_ =
     }, this));
 
     return;
+  } else if (type == 'none') {
+    layer.source = null;
+    var parts = layer.url.split('|');
+    layer.url = '';
+    layer.name = parts[0];
+    layer.previewUrl = parts[1];
   } else {
     return;
   }
