@@ -20,19 +20,51 @@
 
   "checks": {
     "accessControls": "ERROR",
-    "visibility": "ERROR",
-    "checkTypes": "ERROR",
+    "ambiguousFunctionDecl": "ERROR",
+    "checkEventfulObjectDisposal": "ERROR",
     "checkRegExp": "ERROR",
+    "checkTypes": "ERROR",
     "checkVars": "ERROR",
+    "conformanceViolations": "ERROR",
+    "const": "ERROR",
+    "constantProperty": "ERROR",
     "deprecated": "ERROR",
+    "deprecatedAnnotations": "ERROR",
+    "duplicateMessage": "ERROR",
+    "es3": "ERROR",
+    "es5Strict": "ERROR",
+    "externsValidation": "ERROR",
     "fileoverviewTags": "ERROR",
+    "globalThis": "ERROR",
+    "internetExplorerChecks": "ERROR",
     "invalidCasts": "ERROR",
+    "misplacedTypeAnnotation": "ERROR",
+    "missingGetCssName": "ERROR",
     "missingProperties": "ERROR",
+    "missingProvide": "ERROR",
+    "missingRequire": "ERROR",
+    "missingReturn": "ERROR",
+    "msgDescriptions": "ERROR",
+    "newCheckTypes": "ERROR",
     "nonStandardJsDocs": "ERROR",
-    "undefinedVars": "ERROR"
+    "suspiciousCode": "ERROR",
+    "strictModuleDepCheck": "ERROR",
+    "typeInvalidation": "ERROR",
+    "undefinedNames": "ERROR",
+    "undefinedVars": "ERROR",
+    "unknownDefines": "ERROR",
+    "unusedLocalVariables": "ERROR",
+    "unusedPrivateMembers": "ERROR",
+    "uselessCode": "ERROR",
+    "useOfGoogBase": "OFF", // not compatible with es5 // TODO
+    "underscore": "ERROR",
+    "visibility": "ERROR",
+    "accessControls": "ERROR",
+    "ambiguousFunctionDecl": "ERROR",
+    "analyzerChecks": "OFF", // Please add a ! to make it non-nullable, or a ? to make it explicitly nullable
+
+    "lintChecks": "OFF" // unordered requires in goog.i18n
   },
 
-  "output-wrapper": "(function(){%output%})();",
-
-  "jsdoc-html-output-path": "."
+  "output-wrapper": "(function(){%output%})();"
 }

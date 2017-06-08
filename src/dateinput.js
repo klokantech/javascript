@@ -25,6 +25,7 @@
 
 goog.provide('kt.DateInput');
 
+goog.require('goog.date.Date');
 goog.require('goog.dom');
 goog.require('goog.i18n.DateTimeFormat');
 goog.require('goog.i18n.DateTimeFormat.Format');

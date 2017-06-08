@@ -1,7 +1,6 @@
 {
   "id": "kt-debug",
   "inherits": "kt.json",
-  "mode": "ADVANCED",
 
   "define": {
     "goog.DEBUG": true,

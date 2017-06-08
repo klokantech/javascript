@@ -1,5 +1,5 @@
-PLOVR_VERSION=4.1.1
-PLOVR=plovr.jar
+PLOVR_VERSION=6.1.1
+PLOVR=plovr-$(PLOVR_VERSION).jar
 
 .PHONY: all plovr build serve lint webserver
 
@@ -13,8 +13,7 @@ build/%.js: %.json
 .PHONY: plovr
 plovr: $(PLOVR)
 $(PLOVR):
-	rm -f plovr.jar
-	wget --no-check-certificate https://github.com/bolinfest/plovr/releases/download/v$(PLOVR_VERSION)/plovr.jar
+	wget -q --no-check-certificate -O $(PLOVR) https://github.com/bolinfest/plovr/releases/download/v$(PLOVR_VERSION)/plovr.jar
 build/%.html: demo/%.html
 	cp $< $@
 	sed -i 's#http://localhost:9810/compile?id=kt-debug#kt.js#g' $@

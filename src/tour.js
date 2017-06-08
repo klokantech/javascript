@@ -31,8 +31,11 @@ goog.require('goog.dom.ViewportSizeMonitor');
 goog.require('goog.dom.classlist');
 goog.require('goog.events');
 goog.require('goog.events.KeyHandler');
+goog.require('goog.math.Box');
+goog.require('goog.math.Coordinate');
 goog.require('goog.style');
 
+goog.require('kt.TourCard');
 goog.require('kt.TourCard.EventType');
 
 

@@ -71,8 +71,6 @@ kt.VectorMap = function(styleJson, tileJson, mapOrElement, glElement) {
 
     this.glMap_['setMaxBounds']([[-Infinity, -90], [Infinity, 90]]);
 
-    var view = this.olMap_.getView();
-
     this.olMapPrecomposeListenKey_ = this.olMap_.on('precompose', function(e) {
       var viewState = (e.frameState || {}).viewState;
       if (viewState) {

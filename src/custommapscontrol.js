@@ -329,7 +329,6 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
     } else if (layer.type == 'vector' &&
                this.vectorMapEl_ && layer.url.indexOf('|') > 0) {
       var parts = layer.url.split('|');
-      var url_ = parts[1];
       this.vectorMap_ = new kt.VectorMap(
           parts[0], parts[1], this.map_, this.vectorMapEl_);
     } else {
@@ -433,7 +432,6 @@ kt.CustomMapsControl.prototype.add_ =
   } else if (type == 'zxy') {
     if (layer.url.indexOf('{z}') > 0 && layer.url.indexOf('{x}') > 0 &&
         (layer.url.indexOf('{y}') > 0 || layer.url.indexOf('{-y}') > 0)) {
-      var templateStart = layer.url.split('{z}')[0];
       layer.name = 'Custom XYZ';
       layer.source = new ol.source.XYZ({
         url: layer.url
