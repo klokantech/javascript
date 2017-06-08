@@ -22,6 +22,8 @@
 
 /**
  * @author petr.sloup@klokantech.com (Petr Sloup)
+ * @fileoverview
+ * @suppress {missingRequire}
  */
 goog.provide('kt.CustomMapsControl');
 
@@ -136,7 +138,7 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
   this.vectorMap_ = null;
 
   /**
-   * @type {!Array.<ol.events.Key|Array.<ol.events.Key>>}
+   * @type {!Array.<ol.EventsKey|Array.<ol.EventsKey>>}
    * @private
    */
   this.gmapWrapListenKeys_ = [];
@@ -269,8 +271,8 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
     // clear old google map and restore everything
     google.maps.event.clearInstanceListeners(this.gmapWrap_);
     goog.array.forEach(this.gmapWrapListenKeys_, function(key) {
-      this.map_.unByKey(key);
-    }, this);
+      ol.Observable.unByKey(key);
+    });
     this.gmapWrapListenKeys_ = [];
     goog.dom.removeChildren(this.mapElement_);
     this.map_.setTarget(this.mapElement_);
@@ -455,7 +457,7 @@ kt.CustomMapsControl.prototype.add_ =
 
     var listenKey = layer.source.on('change', function(e) {
       if (layer.source.getState() == 'ready') {
-        layer.source.unByKey(listenKey);
+        ol.Observable.unByKey(listenKey);
 
         this.updatePreviewUrl_(layer);
 
@@ -517,7 +519,7 @@ kt.CustomMapsControl.prototype.add_ =
 
     var listenKey = layer.source.on('change', function(e) {
       if (layer.source.getState() == 'ready') {
-        layer.source.unByKey(listenKey);
+        ol.Observable.unByKey(listenKey);
         var tileJSON =
             /** @type {ol.source.TileJSON} */(layer.source).getTileJSON();
         if (tileJSON) {

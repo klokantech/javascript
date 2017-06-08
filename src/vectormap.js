@@ -21,6 +21,8 @@
 
 /**
  * @author petr.sloup@klokantech.com (Petr Sloup)
+ * @fileoverview
+ * @suppress {missingRequire}
  */
 
 goog.provide('kt.VectorMap');
@@ -121,7 +123,7 @@ kt.VectorMap.prototype.destroy = function() {
     }
   }
   if (this.olMapPrecomposeListenKey_) {
-    this.olMap_.unByKey(this.olMapPrecomposeListenKey_);
+    ol.Observable.unByKey(this.olMapPrecomposeListenKey_);
     this.olMapPrecomposeListenKey_ = null;
   }
 };
