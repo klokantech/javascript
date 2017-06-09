@@ -185,9 +185,12 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
     }, false, this);
 
     goog.events.listen(addBtn, goog.events.EventType.CLICK, function(e) {
-      this.add_(typeEl.value + ':' + inputEl.value, undefined, undefined, true);
-      inputEl.value = '';
-      this.render_();
+      if (inputEl.value.length) {
+        this.add_(
+            typeEl.value + ':' + inputEl.value, undefined, undefined, true);
+        inputEl.value = '';
+        this.render_();
+      }
     }, false, this);
   }
 
@@ -562,9 +565,19 @@ kt.CustomMapsControl.prototype.add_ =
 
     uri.setQuery('service=WMS&request=GetCapabilities&version=1.3.0');
 
-    goog.net.XhrIo.send(uri.toString(), goog.bind(function(e) {
+    var xhr = new goog.net.XhrIo();
+    xhr.setResponseType(goog.net.XhrIo.ResponseType.DOCUMENT);
+    goog.events.listen(xhr, goog.net.EventType.COMPLETE, function() {
+      if (!xhr.isSuccess()) {
+        return;
+      }
       var parser = new ol.format.WMSCapabilities();
-      var parsed = parser.read(e.target.getResponse());
+      try {
+        var parsed = parser.read(xhr.getResponseXml());
+      } catch (e) {
+        kt.alert('Error parsing the WMS Capabilities!');
+        return;
+      }
 
       var findUsableCRSIndex = function(CRSs) {
         if (!CRSs) return -1;
@@ -613,7 +626,14 @@ kt.CustomMapsControl.prototype.add_ =
         }
       }, this);
 
-      var layers = parsed['Capability']['Layer']['Layer'];
+      var layers = [];
+      var addLayers = function(root) {
+        if (root) {
+          layers.push(root);
+          goog.array.forEach(root['Layer'] || [], addLayers);
+        }
+      };
+      addLayers(((parsed || {})['Capability'] || {})['Layer']);
 
       if (uri.getFragment().indexOf('layer=') === 0) {
         var layerName = uri.getFragment().substr(6);
@@ -639,15 +659,18 @@ kt.CustomMapsControl.prototype.add_ =
         }
       });
 
-      if (optionList.length > 0) {
+      if (optionList.length === 1) {
+        loadLayer(layers[0]);
+      } else if (optionList.length > 1) {
         kt.listprompt('Select a layer to use:', optionList, function(id) {
-          loadLayer(layers[id]);
+          loadLayer(layers[parseInt(id, 10)]);
         });
       } else {
         kt.alert('No usable layers found!');
       }
 
-    }, this));
+    }, false, this);
+    xhr.send(uri.toString());
 
     return;
   } else if (type == 'none') {
