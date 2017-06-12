@@ -119,11 +119,8 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
       this.controlElement_.getAttribute('data-defaults') : null) || 'osm')
       .split(';');
 
-  /**
-   * @type {boolean}
-   * @private
-   */
-  this.gmapInstalled_ = !!(goog.global['google'] && google.maps);
+  kt.CustomMapsControl.GMAPS_INSTALLED = kt.CustomMapsControl.GMAPS_INSTALLED ||
+      !!(goog.global['google'] && google.maps);
 
   /**
    * @type {?google.maps.Map}
@@ -220,6 +217,12 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
    */
   this.activeLayerBeforeDisabled_ = null;
 };
+
+
+/**
+ * @type {boolean} Google maps installed (or loading).
+ */
+kt.CustomMapsControl.GMAPS_INSTALLED = false;
 
 
 /**
@@ -479,14 +482,14 @@ kt.CustomMapsControl.prototype.add_ =
       name = 'Satellite';
     }
     layer.name = 'Google Maps - ' + name;
-    if (!this.gmapInstalled_) {
+    if (!kt.CustomMapsControl.GMAPS_INSTALLED) {
       if (key) {
         var uv = document.createElement('script');
         uv.type = 'text/javascript';
         uv.src = 'https://maps.google.com/maps/api/js?v=3.27&key=' + key;
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(uv, s);
-        this.gmapInstalled_ = true;
+        kt.CustomMapsControl.GMAPS_INSTALLED = true;
       } else {
         return;
       }
