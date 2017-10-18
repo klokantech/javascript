@@ -320,6 +320,19 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
     var response = xhr.getResponseJson();
     var results = response['results'];
 
+    goog.array.forEach(results, function(item, i, arr) {
+      var bbox = item['boundingbox'];
+      if (bbox) {
+        if (bbox[0] > 180 && bbox[2] > 180) {
+          bbox[0] -= 360;
+          bbox[2] -= 360;
+        } else if (bbox[0] < -180 && bbox[2] < -180) {
+          bbox[0] += 360;
+          bbox[2] += 360;
+        }
+      }
+    }, this);
+
     /*
     var addFormattedNameAndType = function(results) {
       var newResults = [];
