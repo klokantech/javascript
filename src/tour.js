@@ -199,6 +199,8 @@ kt.Tour.prototype.destroy_ = function() {
 /**
  */
 kt.Tour.prototype.start = function() {
+  if (this.cards_.length == 0) return;
+
   this.prepare_();
   goog.dom.appendChild(this.container_, this.veils_[0]);
   var activeElement = goog.dom.getActiveElement(goog.dom.getDocument());
