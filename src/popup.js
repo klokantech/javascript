@@ -26,6 +26,7 @@
 goog.provide('kt.Popup');
 
 goog.require('goog.dom');
+goog.require('goog.dom.classlist');
 
 goog.require('kt.expose');
 
@@ -36,9 +37,11 @@ goog.require('kt.expose');
  * @param {boolean=} opt_modal
  * @param {boolean=} opt_closeable
  * @param {Function=} opt_closeCallback
+ * @param {string=} opt_class
  * @constructor
  */
-kt.Popup = function(opt_title, opt_modal, opt_closeable, opt_closeCallback) {
+kt.Popup = function(opt_title, opt_modal, opt_closeable, opt_closeCallback,
+                    opt_class) {
   /**
    * @type {!Element}
    * @private
@@ -59,6 +62,9 @@ kt.Popup = function(opt_title, opt_modal, opt_closeable, opt_closeCallback) {
    * @private
    */
   this.element_ = goog.dom.createDom(goog.dom.TagName.DIV, 'popup');
+  if (opt_class) {
+    goog.dom.classlist.add(this.element_, opt_class);
+  }
 
   if (opt_title) {
     goog.dom.appendChild(this.element_,
@@ -97,6 +103,14 @@ kt.Popup.prototype.setVisible = function(visible) {
   } else {
     goog.dom.removeNode(this.root_);
   }
+};
+
+
+/**
+ * @return {boolean}
+ */
+kt.Popup.prototype.isVisible = function() {
+  return !!this.root_.parentNode;
 };
 
 
