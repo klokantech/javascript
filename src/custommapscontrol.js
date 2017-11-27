@@ -94,6 +94,18 @@ kt.CustomMapsControl = function(map, opt_elements, opt_defaults) {
    */
   this.map_ = map;
 
+  this.map_.on('change:size', function() {
+    if (this.gmapWrap_) {
+      google.maps.event.trigger(this.gmapWrap_, 'resize');
+      var v = this.map_.getView();
+      if (v) {
+        var center = ol.proj.transform(v.getCenter() || null,
+                                       v.getProjection(), 'EPSG:4326');
+        this.gmapWrap_.setCenter(new google.maps.LatLng(center[1], center[0]));
+      }
+    }
+  }, this);
+
   /**
    * @type {!Element}
    * @private
