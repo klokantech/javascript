@@ -157,6 +157,17 @@ kt.OsmNamesAutocomplete.prototype.enable = function(enable) {
 
 
 /**
+ * @param {?string} code
+ */
+kt.OsmNamesAutocomplete.prototype.setCountryCode = function(code) {
+  this.matcher_.setCountryCode(code);
+  if (this.enabled_) {
+    this.update(true);
+  }
+};
+
+
+/**
  * @param {function(!Object<string, *>)} callback
  * @param {boolean=} opt_forHilite
  */
@@ -217,6 +228,8 @@ kt.OsmNamesAutocomplete.prototype.search =
 kt.expose.symbol('kt.OsmNamesAutocomplete', kt.OsmNamesAutocomplete);
 kt.expose.symbol('kt.OsmNamesAutocomplete.prototype.registerCallback',
                  kt.OsmNamesAutocomplete.prototype.registerCallback);
+kt.expose.symbol('kt.OsmNamesAutocomplete.prototype.setCountryCode',
+                 kt.OsmNamesAutocomplete.prototype.setCountryCode);
 
 
 
@@ -242,6 +255,14 @@ kt.OsmNamesMatcher = function(url, key, hashQueryData, input) {
   this.key_ = key;
 
   /**
+   * @type {?string}
+   * @private
+   */
+  this.countryCode_ = /** @type {?string} */(
+    hashQueryData && hashQueryData.get('country_code') || null
+  );
+
+  /**
    * @type {goog.Uri.QueryData}
    * @private
    */
@@ -252,6 +273,19 @@ kt.OsmNamesMatcher = function(url, key, hashQueryData, input) {
    * @private
    */
   this.input_ = input;
+};
+
+
+/**
+ * @param {?string} code
+ */
+kt.OsmNamesMatcher.prototype.setCountryCode = function(code) {
+  this.countryCode_ = code;
+
+  if (this.hashQueryData_) {
+    this.hashQueryData_.set('country_code', this.countryCode_);
+    location.hash = this.hashQueryData_.toString();
+  }
 };
 
 
@@ -295,9 +329,8 @@ kt.OsmNamesMatcher.prototype.requestMatchingRows =
   }
 
   var url = this.url_;
-  if (this.hashQueryData_ &&
-      this.hashQueryData_.get('country_code')) {
-    url += this.hashQueryData_.get('country_code') + '/';
+  if (this.countryCode_) {
+    url += this.countryCode_ + '/';
   }
   url += 'q/' + encodeURIComponent(token) + '.js';
   if (this.key_) {
