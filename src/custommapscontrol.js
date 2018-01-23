@@ -633,7 +633,24 @@ kt.CustomMapsControl.prototype.add_ =
             this.save_();
           }
 
-          this.updatePreviewUrl_(layer);
+          if (layer.bounds) {
+            // hardcoded version
+            var ext = ol.extent.applyTransform(layer.bounds,
+                ol.proj.getTransform('EPSG:4326', projection));
+            var c = ol.extent.getCenter(ext);
+            var r = Math.max(ol.extent.getWidth(ext),
+                             ol.extent.getHeight(ext)) / 2;
+            ext = [c[0] - r, c[1] - r, c[0] + r, c[1] + r]; // make square
+
+            layer.previewUrl = uri.toString() +
+            '?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&FORMAT=image/png&' +
+            'TRANSPARENT=true&WIDTH=256&HEIGHT=256&STYLES=&' +
+            'LAYERS=' + layerName + '&BBOX=' + ext.join(',') +
+            '&SRS=' + projection.getCode();
+          } else {
+            this.updatePreviewUrl_(layer);
+          }
+
 
           if (opt_rerenderWhenLoaded) {
             this.render_();
@@ -715,15 +732,20 @@ kt.CustomMapsControl.prototype.updatePreviewUrl_ = function(layer) {
     var tileurlfunction = layer.source.getTileUrlFunction();
     if (tileurlfunction) {
       var center = layer.bounds ? ol.extent.getCenter(layer.bounds) : [0, 0];
+      var zoom = layer.bounds ?
+          Math.floor(Math.log(180 / Math.max(
+              ol.extent.getWidth(layer.bounds) / 2,
+              ol.extent.getHeight(layer.bounds))) / Math.LN2) : 0;
       var projection = layer.source.getProjection();
       if (projection) {
         var center_ = ol.proj.transform(center,
             ol.proj.get('EPSG:4326'), projection);
 
-        var tilegrid = layer.source.getTileGrid();
+        var tilegrid = layer.source.getTileGrid() ||
+                       layer.source.getTileGridForProjection(projection);
         if (tilegrid) {
           var tilecoord = tilegrid.getTileCoordForCoordAndZ(
-                              center_, tilegrid.getMinZoom() || 0);
+                              center_, zoom || tilegrid.getMinZoom());
           layer.previewUrl = tileurlfunction(tilecoord, 1, projection) || null;
         }
       }
