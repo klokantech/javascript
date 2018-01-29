@@ -23,16 +23,22 @@
       <h3>Autocomplete</h3>
       <input type="text" class="autocomplete-nominatim" />
 
+      <h3>OSM Names</h3>
+      <input type="text" id="osmnames-autocomplete" />
+
       <h3>Multicomplete</h3>
       <span class="multicomplete" id="multicomplete"></span>
+      <input type="hidden" id="multicomplete-values" />
     </div>
     <script>
       function load() {
         kt.decorate();
         kt.DateInput.decorateAll('yyyy-MM-dd');
 
+        new kt.OsmNamesAutocomplete('osmnames-autocomplete');
+
         // load some extra features
-        new kt.MultiComplete('multicomplete', ['test|10', 'testing|1', 'tester', 'beta tester|23', 'alpha testing', 'geology', 'Table', 'Googlebot', 'Instant', 'Mustang']);
+        new kt.MultiComplete('multicomplete', ['test|10', 'testing|1', 'tester', 'beta tester|23', 'alpha testing', 'geology', 'Table', 'Googlebot', 'Instant', 'Mustang'], false, true, false, 'multicomplete-values');
 
         //notification with cookies store
         new kt.notice('Cookies help us to deliver our services. By using our services, you agree to our use of cookies.', true, function(){alert('ok')});
