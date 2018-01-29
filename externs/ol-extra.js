@@ -1,7 +1,7 @@
 /**
  * @externs
- * Extra externs manually extracted from ol3/externs folder.
- * These types are used in the generated ol3 externs but not defined anywhere.
+ * Extra externs manually extracted from ol/externs folder.
+ * These types are used in the generated ol externs but not defined anywhere.
  */
 
 

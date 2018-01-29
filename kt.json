@@ -5,9 +5,9 @@
   "paths": ["src"],
 
   "externs": [
-    "//externs/maps/google_maps_api_v3.js",
-    "./externs/ol3-3.16.0.js",
-    "./externs/ol3-extra.js"
+    "./externs/google_maps_api_v3_27.js",
+    "./externs/ol-4.6.4.js",
+    "./externs/ol-extra.js"
   ],
 
   "define": {

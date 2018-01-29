@@ -1,4 +1,4 @@
-PLOVR_VERSION=6.1.1
+PLOVR_VERSION=7.1.0
 PLOVR=plovr-$(PLOVR_VERSION).jar
 
 .PHONY: all plovr build serve lint webserver

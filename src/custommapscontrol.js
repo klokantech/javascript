@@ -742,7 +742,8 @@ kt.CustomMapsControl.prototype.updatePreviewUrl_ = function(layer) {
             ol.proj.get('EPSG:4326'), projection);
 
         var tilegrid = layer.source.getTileGrid() ||
-                       layer.source.getTileGridForProjection(projection);
+                       (layer.source.getTileGridForProjection &&
+                        layer.source.getTileGridForProjection(projection));
         if (tilegrid) {
           var tilecoord = tilegrid.getTileCoordForCoordAndZ(
                               center_, zoom || tilegrid.getMinZoom());
