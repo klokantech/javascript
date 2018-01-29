@@ -41,16 +41,24 @@ goog.require('kt.expose');
  * @param {boolean=} opt_useSimilar Whether to use similar matches.
  * @param {boolean=} opt_allowShowAll Allow showing all results for no filter.
  * @param {boolean=} opt_allowCustom Allow value not present in the results.
+ * @param {!Element|!string=} opt_inputHidden Put values in this input.
  * @constructor
  * @extends {goog.ui.ac.AutoComplete}
  */
 kt.MultiComplete = function(container, data, opt_useSimilar, opt_allowShowAll,
-                            opt_allowCustom) {
+                            opt_allowCustom, opt_inputHidden) {
   /**
    * @type {!Element}
    * @protected
    */
   this.container = /** @type {!Element} */(goog.dom.getElement(container));
+
+  /**
+  * @type {?Element}
+  * @protected
+  */
+  this.inputHidden =
+      opt_inputHidden ? goog.dom.getElement(opt_inputHidden) : null;
 
   /**
    * @type {!Element}
@@ -191,6 +199,17 @@ kt.MultiComplete.prototype.renderAll_ = function() {
 
 
 /**
+ * @private
+ */
+kt.MultiComplete.prototype.updateHidden_ = function() {
+  console.log(this.inputHidden, this.values);
+  if (this.inputHidden) {
+    this.inputHidden.value = this.getValues().join(';');
+  }
+};
+
+
+/**
  * @param {string} v
  */
 kt.MultiComplete.prototype.addValue = function(v) {
@@ -199,6 +218,7 @@ kt.MultiComplete.prototype.addValue = function(v) {
   var element = goog.dom.createDom(goog.dom.TagName.DIV, 'mc-tag', v, closer);
 
   var newLength = this.values.push({val: v, el: element, closer: closer});
+  this.updateHidden_();
 
   goog.events.listen(closer, goog.events.EventType.CLICK, function(e) {
     this.removeValue(newLength - 1);
@@ -229,6 +249,7 @@ kt.MultiComplete.prototype.removeValue = function(opt_v) {
     goog.dom.removeNode(payload.el);
     if (goog.isDefAndNotNull(opt_v)) delete this.values[opt_v];
   }
+  this.updateHidden_();
 };
 
 
@@ -243,3 +264,5 @@ kt.MultiComplete.prototype.getValues = function() {
 };
 
 kt.expose.symbol('kt.MultiComplete', kt.MultiComplete);
+kt.expose.symbol('kt.MultiComplete.prototype.getValues',
+                 kt.MultiComplete.prototype.getValues);
