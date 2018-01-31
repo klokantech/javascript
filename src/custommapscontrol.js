@@ -584,14 +584,16 @@ kt.CustomMapsControl.prototype.add_ =
     xhr.setResponseType(goog.net.XhrIo.ResponseType.DOCUMENT);
     goog.events.listen(xhr, goog.net.EventType.COMPLETE, function() {
       if (!xhr.isSuccess()) {
-        kt.alert('URL is not a valid WMS server (error loading WMS Capabilities).');
+        kt.alert(
+            'URL is not a valid WMS server (error loading WMS Capabilities).');
         return;
       }
       var parser = new ol.format.WMSCapabilities();
       try {
         var parsed = parser.read(xhr.getResponseXml());
       } catch (e) {
-        kt.alert('URL is not a valid WMS server (error parsing WMS Capabilities).');
+        kt.alert(
+            'URL is not a valid WMS server (error parsing WMS Capabilities).');
         return;
       }
 
@@ -644,10 +646,10 @@ kt.CustomMapsControl.prototype.add_ =
             ext = [c[0] - r, c[1] - r, c[0] + r, c[1] + r]; // make square
 
             layer.previewUrl = uri.toString() +
-            '?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&FORMAT=image/png&' +
-            'TRANSPARENT=true&WIDTH=256&HEIGHT=256&STYLES=&' +
-            'LAYERS=' + layerName + '&BBOX=' + ext.join(',') +
-            '&SRS=' + projection.getCode();
+                '?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&FORMAT=image/png&' +
+                'TRANSPARENT=true&WIDTH=256&HEIGHT=256&STYLES=&' +
+                'LAYERS=' + layerName + '&BBOX=' + ext.join(',') +
+                '&SRS=' + projection.getCode();
           } else {
             this.updatePreviewUrl_(layer);
           }

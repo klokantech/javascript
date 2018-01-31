@@ -258,9 +258,8 @@ kt.OsmNamesMatcher = function(url, key, hashQueryData, input) {
    * @type {?string}
    * @private
    */
-  this.countryCode_ = /** @type {?string} */(
-    hashQueryData && hashQueryData.get('country_code') || null
-  );
+  this.countryCode_ = /** @type {?string} */
+      (hashQueryData && hashQueryData.get('country_code') || null);
 
   /**
    * @type {goog.Uri.QueryData}
