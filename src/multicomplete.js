@@ -202,7 +202,6 @@ kt.MultiComplete.prototype.renderAll_ = function() {
  * @private
  */
 kt.MultiComplete.prototype.updateHidden_ = function() {
-  console.log(this.inputHidden, this.values);
   if (this.inputHidden) {
     this.inputHidden.value = this.getValues().join(';');
   }
@@ -257,10 +256,11 @@ kt.MultiComplete.prototype.removeValue = function(opt_v) {
  * @return {!Array.<string>}
  */
 kt.MultiComplete.prototype.getValues = function() {
-  return /** @type {!Array.<string>} */(
-      goog.array.map(this.values, function(el, i, arr) {
-        return el.val;
-      }));
+  var values = [];
+  goog.array.forEach(this.values, function(el, i, arr) {
+    if (el && el.val) values.push(el.val);
+  });
+  return values;
 };
 
 kt.expose.symbol('kt.MultiComplete', kt.MultiComplete);
