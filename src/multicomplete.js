@@ -273,7 +273,7 @@ kt.MultiComplete.prototype.getValues = function() {
  */
 kt.MultiComplete.prototype.setValues = function(values) {
   goog.array.forEach(values, function(el, i, arr) {
-    this.addValue(el);
+    if (el) this.addValue(el);
   }, this);
 };
 
