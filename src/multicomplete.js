@@ -162,6 +162,10 @@ kt.MultiComplete = function(container, data, opt_useSimilar, opt_allowShowAll,
           e.preventDefault();
         }
       }, false, this);
+
+  if (this.inputHidden) {
+    this.setValues(this.inputHidden.value.split(';'));
+  }
 };
 goog.inherits(kt.MultiComplete, goog.ui.ac.AutoComplete);
 
@@ -263,6 +267,18 @@ kt.MultiComplete.prototype.getValues = function() {
   return values;
 };
 
+
+/**
+ * @param {!Array.<string>} values
+ */
+kt.MultiComplete.prototype.setValues = function(values) {
+  goog.array.forEach(values, function(el, i, arr) {
+    this.addValue(el);
+  }, this);
+};
+
 kt.expose.symbol('kt.MultiComplete', kt.MultiComplete);
 kt.expose.symbol('kt.MultiComplete.prototype.getValues',
                  kt.MultiComplete.prototype.getValues);
+kt.expose.symbol('kt.MultiComplete.prototype.setValues',
+                 kt.MultiComplete.prototype.setValues);
