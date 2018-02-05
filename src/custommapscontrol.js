@@ -573,6 +573,11 @@ kt.CustomMapsControl.prototype.add_ =
         if (opt_rerenderWhenLoaded) {
           this.render_();
         }
+      } else if (layer.source.getState() == 'error') {
+        layer.name = 'Error loading map';
+        if (opt_rerenderWhenLoaded) {
+          this.render_();
+        }
       }
     }, this);
   } else if (type == 'wms') {
