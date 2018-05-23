@@ -86,9 +86,9 @@ kt.prompt = function(text, callback, opt_title,
   popup.append(String(text), valueInput);
 
   var okBtn = goog.dom.createDom(goog.dom.TagName.DIV,
-                                 'btn-light', opt_ok || 'OK');
+                                 'btn btn-light', opt_ok || 'OK');
   var cancelBtn = goog.dom.createDom(goog.dom.TagName.DIV,
-                                     'btn-dark', opt_cancel || 'Cancel');
+                                     'btn btn-dark', opt_cancel || 'Cancel');
   popup.appendActions(cancelBtn, okBtn);
 
   goog.events.listen(okBtn, goog.events.EventType.CLICK, function(e) {
@@ -124,9 +124,9 @@ kt.confirm = function(text, callback, opt_title, opt_yes, opt_no) {
   popup.append(String(text));
 
   var yesBtn = goog.dom.createDom(goog.dom.TagName.DIV,
-      'btn-light', opt_yes || 'Yes');
+      'btn btn-light', opt_yes || 'Yes');
   var noBtn = goog.dom.createDom(goog.dom.TagName.DIV,
-      'btn-dark', opt_no || 'No');
+      'btn btn-dark', opt_no || 'No');
   popup.appendActions(yesBtn, noBtn);
 
   goog.events.listen(yesBtn, goog.events.EventType.CLICK, function(e) {
