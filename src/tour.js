@@ -316,11 +316,19 @@ kt.Tour.decorate = function(opt_group) {
     }
     var direction = /** @type {kt.TourCard.Direction} */
         (cardElement.getAttribute('data-direction') || 'none');
+    var anchorDirX = /** @type {kt.TourCard.Direction|undefined} */
+        (cardElement.getAttribute('data-direction-x') || undefined);
+    var anchorDirY = /** @type {kt.TourCard.Direction|undefined} */
+        (cardElement.getAttribute('data-direction-y') || undefined);
     var className = cardElement.getAttribute('data-classname');
     var card = new kt.TourCard(title, content, anchor, direction, highlight,
-        undefined, undefined, undefined, className);
+        anchorDirX, anchorDirY, undefined, className);
     tour.addCard(card);
   });
 
   return tour;
 };
+
+kt.expose.symbol('kt.startTour', function(opt_group) {
+  kt.Tour.decorate(opt_group).start();
+});
