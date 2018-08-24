@@ -37,6 +37,7 @@ goog.require('goog.style');
 
 goog.require('kt.TourCard');
 goog.require('kt.TourCard.EventType');
+goog.require('kt.expose');
 
 
 
