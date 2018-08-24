@@ -345,6 +345,15 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
       google.maps.event.addListenerOnce(gmap, 'idle', goog.bind(function() {
         google.maps.event.trigger(gmap, 'resize');
         this.map_.updateSize();
+        var updateSizeLater = goog.bind(function() {
+          this.map_.updateSize();
+          if (isNaN(this.map_.getSize()[0])) {
+            // It can take some time for the new versions of gmaps API to
+            // insert the controls into DOM (probably), so we have to do this :(
+            setTimeout(updateSizeLater, 100);
+          }
+        }, this);
+        updateSizeLater();
       }, this));
     } else if (layer.type == 'vector' &&
                this.vectorMapEl_ && layer.url.indexOf('|') > 0) {
