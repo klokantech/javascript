@@ -399,7 +399,9 @@ kt.CustomMapsControl.prototype.useLayer_ = function(layer) {
  */
 kt.CustomMapsControl.prototype.load_ = function() {
   try {
-    var data = JSON.parse(goog.net.cookies.get('custom_maps') || '[]');
+    var cookieValue = goog.net.cookies.get('custom_maps') || '[]';
+    cookieValue = cookieValue.replace(/%%semicolon%%/g, ';');
+    var data = JSON.parse(cookieValue);
     goog.array.forEach(/** @type {!Array} */(data), function(url) {
       this.add_(url, false, true);
     }, this);
@@ -420,7 +422,9 @@ kt.CustomMapsControl.prototype.save_ = function() {
   });
   var domain = (goog.DEBUG || !kt.CustomMapsControl.COOKIE_DOMAIN.length) ?
       null : kt.CustomMapsControl.COOKIE_DOMAIN;
-  goog.net.cookies.set('custom_maps', JSON.stringify(data),
+  var cookieValue = JSON.stringify(data);
+  cookieValue = cookieValue.replace(/;/g, '%%semicolon%%');
+  goog.net.cookies.set('custom_maps', cookieValue,
                        5 * 365 * 24 * 60 * 60, '/', domain);
 };
 
