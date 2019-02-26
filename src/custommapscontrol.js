@@ -602,16 +602,18 @@ kt.CustomMapsControl.prototype.add_ =
     xhr.setResponseType(goog.net.XhrIo.ResponseType.DOCUMENT);
     goog.events.listen(xhr, goog.net.EventType.COMPLETE, function() {
       if (!xhr.isSuccess()) {
-        kt.alert(
-            'URL is not a valid WMS server (error loading WMS Capabilities).');
+        if (!layer.isDefault) {
+          kt.alert('URL is not a valid WMS server (error loading WMS Capabilities).');
+        }
         return;
       }
       var parser = new ol.format.WMSCapabilities();
       try {
         var parsed = parser.read(xhr.getResponseXml());
       } catch (e) {
-        kt.alert(
-            'URL is not a valid WMS server (error parsing WMS Capabilities).');
+        if (!layer.isDefault) {
+          kt.alert('URL is not a valid WMS server (error parsing WMS Capabilities).');
+        }
         return;
       }
 
