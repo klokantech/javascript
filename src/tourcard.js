@@ -183,7 +183,7 @@ kt.TourCard.prototype.prepare = function(opt_skipperCount, opt_skipperIndex,
   var closeBtn = goog.dom.createDom(goog.dom.TagName.A, {
     'href': '#',
     'class': 'tour-card-close'
-  }, 'x');
+  }, '');
   goog.events.listen(closeBtn, goog.events.EventType.CLICK, function(e) {
     this.dispatchEvent(kt.TourCard.EventType.CLOSE);
     e.preventDefault();
